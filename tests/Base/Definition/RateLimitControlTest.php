@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Definitions\RateLimitControl;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class RateLimitControlTest extends RiotAPITestCase
@@ -48,8 +49,8 @@ class RateLimitControlTest extends RiotAPITestCase
 	{
 		self::$apiKey   = RiotAPITestCase::getApiKey();
 		self::$region   = Region::EUROPE_EAST;
-		self::$endpoint = LeagueAPI::RESOURCE_CHAMPION . "/champions";
-		self::$resource = LeagueAPI::RESOURCE_CHAMPION;
+		self::$endpoint = "test/asdf";
+		self::$resource = "test";
 
 		self::$app_limit_header = "1:1,10:10";
 		self::$app_count_header = "1:1,1:10";

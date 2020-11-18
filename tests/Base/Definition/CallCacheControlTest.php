@@ -20,6 +20,7 @@
 declare(strict_types=1);
 
 use RiotAPI\Base\Definitions\CallCacheControl;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class CallCacheControlTest extends RiotAPITestCase

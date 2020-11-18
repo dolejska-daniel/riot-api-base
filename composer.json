@@ -12,15 +12,18 @@
 			"role": "Developer"
 		}
 	],
+	"scripts": {
+		"test": "vendor/bin/phpunit -v --bootstrap phpunit.php --configuration phpunit.xml --coverage-text --coverage-html build/coverage"
+	},
 	"require": {
 		"guzzlehttp/guzzle": "^7|^6",
-		"symfony/cache": ">=4.3.8",
+		"symfony/cache": "^5",
 		"psr/cache": "^1",
-		"php": ">=7.1",
+		"php": ">=7.3",
 		"ext-json": "*"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^6"
+		"phpunit/phpunit": "^9"
 	},
 	"autoload": {
 		"psr-4": {

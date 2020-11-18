@@ -19,8 +19,6 @@
 
 namespace RiotAPI\Base\Definitions;
 
-use RiotAPI\Tests\TestBaseAPI;
-
 
 /**
  *   Class RateLimitStorage
@@ -183,7 +181,8 @@ class RateLimitStorage
 	public function canCall( string $api_key, string $region, string $resource, string $endpoint): bool
 	{
 		$appLimits = $this->getAppLimits($api_key, $region);
-		if (is_array($appLimits) && $resource != LeagueAPI::RESOURCE_STATICDATA)
+		// FIXME: Exclude staticdata resource from rate-limit constraints
+		if (is_array($appLimits)) // && $resource != LeagueAPI::RESOURCE_STATICDATA)
 		{
 			foreach ($appLimits as $timeInterval => $limits)
 			{

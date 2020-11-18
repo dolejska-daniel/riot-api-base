@@ -21,9 +21,10 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
+use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Exceptions\ServerLimitException;
 use RiotAPI\Tests\TestBaseAPI;
-use RiotAPI\Base\Definitions\Region;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class RatelimitTest extends RiotAPITestCase
@@ -31,13 +32,13 @@ class RatelimitTest extends RiotAPITestCase
 	public function testInit()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA  => true,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA  => true,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 		$api->clearCache();
 
 		return $api;
@@ -46,9 +47,9 @@ class RatelimitTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testApiCall_Valid( LeagueAPI $api )
+	public function testApiCall_Valid( TestBaseAPI $api )
 	{
 		$data = $api->makeTestEndpointCall("slow");
 		$this->assertEquals([], $data);
@@ -58,9 +59,9 @@ class RatelimitTest extends RiotAPITestCase
 	 * @depends testInit
 	 * @depends testApiCall_Valid
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testApiCall_Exception( LeagueAPI $api )
+	public function testApiCall_Exception( TestBaseAPI $api )
 	{
 		$this->expectException(ServerLimitException::class);
 		$this->expectExceptionMessage("API call rate limit would be exceeded by this call.");
@@ -72,9 +73,9 @@ class RatelimitTest extends RiotAPITestCase
 	 * @depends testInit
 	 * @depends testApiCall_Exception
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testApiCall_ExceptionTimeout( LeagueAPI $api )
+	public function testApiCall_ExceptionTimeout( TestBaseAPI $api )
 	{
 		sleep(1);
 

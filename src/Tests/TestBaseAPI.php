@@ -22,7 +22,13 @@ namespace RiotAPI\Tests;
 use RiotAPI\Base\BaseAPI;
 
 class TestBaseAPI extends BaseAPI
-{    
+{   
+	public $resources = [
+		"0:test",
+		"1:resource1",
+		"2:resource2"
+	];
+
 	/** @var AsyncRequest $next_async_request */
 	public $next_async_request;
 

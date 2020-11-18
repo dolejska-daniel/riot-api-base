@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
-
 use RiotAPI\Base\Exceptions\SettingsException;
+use RiotAPI\Tests\TestBaseAPI;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class CallsCacheTest extends TestCase
@@ -32,13 +32,13 @@ class CallsCacheTest extends TestCase
 	public function testInit_simple()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION         => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA => true,
-			LeagueAPI::SET_CACHE_CALLS    => true,
+			TestBaseAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION         => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA => true,
+			TestBaseAPI::SET_CACHE_CALLS    => true,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -46,14 +46,14 @@ class CallsCacheTest extends TestCase
 	public function testInit_numeric()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION         => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA => true,
-			LeagueAPI::SET_CACHE_CALLS    => true,
-			LeagueAPI::SET_CACHE_CALLS_LENGTH => 1,
+			TestBaseAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION         => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA => true,
+			TestBaseAPI::SET_CACHE_CALLS    => true,
+			TestBaseAPI::SET_CACHE_CALLS_LENGTH => 1,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -61,25 +61,16 @@ class CallsCacheTest extends TestCase
 	public function testInit_array()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION         => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA => true,
-			LeagueAPI::SET_CACHE_CALLS    => true,
-			LeagueAPI::SET_CACHE_CALLS_LENGTH => [
-				LeagueAPI::RESOURCE_CHAMPION        => 60,
-				LeagueAPI::RESOURCE_CHAMPIONMASTERY => 60,
-				LeagueAPI::RESOURCE_LEAGUE          => 60,
-				LeagueAPI::RESOURCE_STATICDATA      => 360,
-				LeagueAPI::RESOURCE_STATUS          => 60,
-				//LeagueAPI::RESOURCE_MATCH           => 60,
-				LeagueAPI::RESOURCE_SPECTATOR       => 60,
-				LeagueAPI::RESOURCE_SUMMONER        => 60,
-				LeagueAPI::RESOURCE_TOURNAMENT      => 60,
-				LeagueAPI::RESOURCE_TOURNAMENT_STUB => 60,
+			TestBaseAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION         => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA => true,
+			TestBaseAPI::SET_CACHE_CALLS    => true,
+			TestBaseAPI::SET_CACHE_CALLS_LENGTH => [
+				"0:test" => 60,
 			],
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -92,8 +83,8 @@ class CallsCacheTest extends TestCase
 			"Bool"   => [ false ],
 			"Array #1" => [
 				[
-					LeagueAPI::RESOURCE_CHAMPION   => "INVALID PARAMETER",
-					LeagueAPI::RESOURCE_STATICDATA => "INVALID PARAMETER",
+					"1:resource1" => 60,
+					"2:resource2" => "INVALID PARAMETER",
 				]
 			],
 			"Array #2" => [
@@ -104,9 +95,9 @@ class CallsCacheTest extends TestCase
 			],
 			"Array #3" => [
 				[
-					LeagueAPI::RESOURCE_CHAMPION => 80,
-					LeagueAPI::RESOURCE_MATCH    => null,
-					"INVALID RESOURCE 1"       => 60,
+					"1:resource1"          => 80,
+					"2:resource2"          => null,
+					"INVALID RESOURCE 1" => 60,
 				]
 			],
 		];
@@ -123,11 +114,11 @@ class CallsCacheTest extends TestCase
 		$this->expectExceptionMessage("is not valid.");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION         => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA => true,
-			LeagueAPI::SET_CACHE_CALLS    => true,
-			LeagueAPI::SET_CACHE_CALLS_LENGTH => $callsLength,
+			TestBaseAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION         => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA => true,
+			TestBaseAPI::SET_CACHE_CALLS    => true,
+			TestBaseAPI::SET_CACHE_CALLS_LENGTH => $callsLength,
 		]);
 	}
 }

@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
-
 use RiotAPI\Base\Exceptions\SettingsException;
+use RiotAPI\Tests\TestBaseAPI;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class CallbackFunctionsTest extends TestCase
@@ -41,17 +41,17 @@ class CallbackFunctionsTest extends TestCase
 		};
 
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION           => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA   => true,
-			LeagueAPI::SET_CALLBACKS_BEFORE => [
+			TestBaseAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION           => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA   => true,
+			TestBaseAPI::SET_CALLBACKS_BEFORE => [
 				[ $this, 'classCallback' ],
 				$functionCallback,
 				function() {
 
 				},
 			],
-			LeagueAPI::SET_CALLBACKS_AFTER => [
+			TestBaseAPI::SET_CALLBACKS_AFTER => [
 				[ $this, 'classCallback' ],
 				$functionCallback,
 				function() {
@@ -60,7 +60,7 @@ class CallbackFunctionsTest extends TestCase
 			],
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -68,18 +68,18 @@ class CallbackFunctionsTest extends TestCase
 	public function testInit_noArray()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION           => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA   => true,
-			LeagueAPI::SET_CALLBACKS_BEFORE => function() {
+			TestBaseAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION           => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA   => true,
+			TestBaseAPI::SET_CALLBACKS_BEFORE => function() {
 
 			},
-			LeagueAPI::SET_CALLBACKS_AFTER => function() {
+			TestBaseAPI::SET_CALLBACKS_AFTER => function() {
 
 			},
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -127,11 +127,11 @@ class CallbackFunctionsTest extends TestCase
 		$this->expectExceptionMessage("is not valid.");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION           => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA   => true,
-			LeagueAPI::SET_CALLBACKS_BEFORE => $beforeCallbacks,
-			LeagueAPI::SET_CALLBACKS_AFTER  => $afterCallbacks,
+			TestBaseAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION           => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA   => true,
+			TestBaseAPI::SET_CALLBACKS_BEFORE => $beforeCallbacks,
+			TestBaseAPI::SET_CALLBACKS_AFTER  => $afterCallbacks,
 		]);
 	}
 }

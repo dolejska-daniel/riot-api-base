@@ -21,13 +21,14 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Definitions\Platform;
 use RiotAPI\Base\Exceptions\RequestException;
 use RiotAPI\Base\Exceptions\ServerException;
 use RiotAPI\Base\Exceptions\ServerLimitException;
 use RiotAPI\Base\Exceptions\SettingsException;
+use RiotAPI\Tests\TestBaseAPI;
+use RiotAPI\Tests\RiotAPITestCase;
 
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
@@ -37,12 +38,12 @@ class LibraryTest extends RiotAPITestCase
 	public function testInit()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION         => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA => true,
+			TestBaseAPI::SET_KEY            => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION         => Region::EUROPE_EAST,
+			TestBaseAPI::SET_USE_DUMMY_DATA => true,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 
 		return $api;
 	}
@@ -50,24 +51,23 @@ class LibraryTest extends RiotAPITestCase
 	public function testInit_cachingDefaults()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_TOURNAMENT_KEY  => RiotAPITestCase::getApiTournamentKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
-			LeagueAPI::SET_CACHE_CALLS     => true,
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_CACHE_CALLS     => true,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 	}
 
 	public function testInit_customDataProviders()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
 		], new Region(), new Platform());
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 	}
 
 	public function testInit_settings_invalid_missingRequired()
@@ -84,9 +84,9 @@ class LibraryTest extends RiotAPITestCase
 		$this->expectExceptionMessage("is not valid.");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION           => Region::EUROPE_EAST,
-			LeagueAPI::SET_KEY_INCLUDE_TYPE => 'THIS_IS_INVALID_INCLUDE_TYPE',
+			TestBaseAPI::SET_KEY              => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION           => Region::EUROPE_EAST,
+			TestBaseAPI::SET_KEY_INCLUDE_TYPE => 'THIS_IS_INVALID_INCLUDE_TYPE',
 		]);
 	}
 
@@ -96,10 +96,10 @@ class LibraryTest extends RiotAPITestCase
 		$this->expectExceptionMessage("Provided CacheProvider does not implement Psr\Cache\CacheItemPoolInterface (PSR-6)");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
-			LeagueAPI::SET_CACHE_PROVIDER  => new stdClass(),
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_CACHE_PROVIDER  => new stdClass(),
 		]);
 	}
 
@@ -109,10 +109,10 @@ class LibraryTest extends RiotAPITestCase
 		$this->expectExceptionMessage("Failed to initialize CacheProvider class:");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
-			LeagueAPI::SET_CACHE_PROVIDER  => "Orianna",
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_CACHE_PROVIDER  => "Orianna",
 		]);
 	}
 
@@ -125,64 +125,64 @@ class LibraryTest extends RiotAPITestCase
 		$this->expectExceptionMessage("CacheProvider class failed to be initialized:");
 
 		new TestBaseAPI([
-			LeagueAPI::SET_KEY                   => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION                => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_RATELIMIT       => true,
-			LeagueAPI::SET_CACHE_PROVIDER        => MemcachedAdapter::class,
-			LeagueAPI::SET_CACHE_PROVIDER_PARAMS => [ '' ],
+			TestBaseAPI::SET_KEY                   => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION                => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_RATELIMIT       => true,
+			TestBaseAPI::SET_CACHE_PROVIDER        => MemcachedAdapter::class,
+			TestBaseAPI::SET_CACHE_PROVIDER_PARAMS => [ '' ],
 		]);
 	}
 
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testChangeRegion(LeagueAPI $api )
+	public function testChangeRegion(TestBaseAPI $api )
 	{
-		$this->assertSame(Region::EUROPE_EAST, $api->getSetting(LeagueAPI::SET_REGION));
+		$this->assertSame(Region::EUROPE_EAST, $api->getSetting(TestBaseAPI::SET_REGION));
 		$api->setRegion(Region::EUROPE_WEST);
-		$this->assertSame(Region::EUROPE_WEST, $api->getSetting(LeagueAPI::SET_REGION));
+		$this->assertSame(Region::EUROPE_WEST, $api->getSetting(TestBaseAPI::SET_REGION));
 	}
 
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testChangeSettings_single(LeagueAPI $api )
+	public function testChangeSettings_single(TestBaseAPI $api )
 	{
-		$this->assertSame(RiotAPITestCase::getApiKey(), $api->getSetting(LeagueAPI::SET_KEY));
-		$api->setSetting(LeagueAPI::SET_KEY, "NOT_REALLY_A_API_KEY");
-		$this->assertSame("NOT_REALLY_A_API_KEY", $api->getSetting(LeagueAPI::SET_KEY));
+		$this->assertSame(RiotAPITestCase::getApiKey(), $api->getSetting(TestBaseAPI::SET_KEY));
+		$api->setSetting(TestBaseAPI::SET_KEY, "NOT_REALLY_A_API_KEY");
+		$this->assertSame("NOT_REALLY_A_API_KEY", $api->getSetting(TestBaseAPI::SET_KEY));
 	}
 
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testChangeSettings_array(LeagueAPI $api )
+	public function testChangeSettings_array(TestBaseAPI $api )
 	{
 		$api->setSettings([
-			LeagueAPI::SET_KEY    => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION => Region::EUROPE_EAST,
+			TestBaseAPI::SET_KEY    => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION => Region::EUROPE_EAST,
 		]);
-		$this->assertSame(RiotAPITestCase::getApiKey(), $api->getSetting(LeagueAPI::SET_KEY));
-		$this->assertSame(Region::EUROPE_EAST, $api->getSetting(LeagueAPI::SET_REGION));
+		$this->assertSame(RiotAPITestCase::getApiKey(), $api->getSetting(TestBaseAPI::SET_KEY));
+		$this->assertSame(Region::EUROPE_EAST, $api->getSetting(TestBaseAPI::SET_REGION));
 	}
 
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testChangeSettings_initOnly(LeagueAPI $api )
+	public function testChangeSettings_initOnly(TestBaseAPI $api )
 	{
 		$this->expectException(SettingsException::class);
 		$this->expectExceptionMessage("can only be set on initialization of the library");
 
-		$api->setSetting(LeagueAPI::SET_API_BASEURL, "http://google.com");
+		$api->setSetting(TestBaseAPI::SET_API_BASEURL, "http://google.com");
 	}
 
 	public function testCustomRegionDataProvider()
@@ -200,9 +200,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_503(LeagueAPI $api )
+	public function testMakeCall_503(TestBaseAPI $api )
 	{
 		$this->expectException(ServerException::class);
 		$this->expectExceptionMessage("LeagueAPI: Service is temporarily unavailable.");
@@ -213,9 +213,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_500(LeagueAPI $api )
+	public function testMakeCall_500(TestBaseAPI $api )
 	{
 		$this->expectException(ServerException::class);
 		$this->expectExceptionMessage("LeagueAPI: Internal server error occured.");
@@ -226,9 +226,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_429(LeagueAPI $api )
+	public function testMakeCall_429(TestBaseAPI $api )
 	{
 		$this->expectException(ServerLimitException::class);
 		$this->expectExceptionMessage("LeagueAPI: Rate limit for this API key was exceeded.");
@@ -239,9 +239,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_415(LeagueAPI $api )
+	public function testMakeCall_415(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Unsupported media type.");
@@ -252,9 +252,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_404(LeagueAPI $api )
+	public function testMakeCall_404(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Not Found.");
@@ -265,9 +265,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_403(LeagueAPI $api )
+	public function testMakeCall_403(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Forbidden.");
@@ -278,9 +278,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_401(LeagueAPI $api )
+	public function testMakeCall_401(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Unauthorized.");
@@ -291,9 +291,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_400(LeagueAPI $api )
+	public function testMakeCall_400(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Request is invalid.");
@@ -304,9 +304,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_4xx(LeagueAPI $api )
+	public function testMakeCall_4xx(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("LeagueAPI: Unspecified error occured");
@@ -317,9 +317,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_test_Versions(LeagueAPI $api )
+	public function testMakeCall_test_Versions(TestBaseAPI $api )
 	{
 		$data = $api->makeTestEndpointCall('versions');
 
@@ -329,11 +329,11 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_test_PUT(LeagueAPI $api )
+	public function testMakeCall_test_PUT(TestBaseAPI $api )
 	{
-		$data = $api->makeTestEndpointCall('put', null, LeagueAPI::METHOD_PUT);
+		$data = $api->makeTestEndpointCall('put', null, TestBaseAPI::METHOD_PUT);
 
 		$this->assertSame($data, $api->getResult());
 	}
@@ -343,9 +343,9 @@ class LibraryTest extends RiotAPITestCase
 		$this->expectException(RequestException::class);
 
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY         => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION      => Region::EUROPE_EAST,
-			LeagueAPI::SET_API_BASEURL => '.invalid.api.url.riotgames.com',
+			TestBaseAPI::SET_KEY         => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION      => Region::EUROPE_EAST,
+			TestBaseAPI::SET_API_BASEURL => '.invalid.api.url.riotgames.com',
 		]);
 
 		$api->makeTestEndpointCall('versions');
@@ -354,9 +354,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_NoDummyData(LeagueAPI $api )
+	public function testMakeCall_NoDummyData(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("No DummyData available for call.");
@@ -367,9 +367,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testMakeCall_DummyDataEmpty(LeagueAPI $api )
+	public function testMakeCall_DummyDataEmpty(TestBaseAPI $api )
 	{
 		$this->expectException(RequestException::class);
 		$this->expectExceptionMessage("No DummyData available for call.");
@@ -380,11 +380,11 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testSaveDummyData(LeagueAPI $api )
+	public function testSaveDummyData(TestBaseAPI $api )
 	{
-		$api->setSetting(LeagueAPI::SET_SAVE_DUMMY_DATA, false);
+		$api->setSetting(TestBaseAPI::SET_SAVE_DUMMY_DATA, false);
 
 		try
 		{
@@ -392,7 +392,7 @@ class LibraryTest extends RiotAPITestCase
 		}
 		catch (RequestException $ex) {}
 
-		$this->assertFileNotExists($api->_getDummyDataFileName());
+		$this->assertFileDoesNotExist($api->_getDummyDataFileName());
 		$api->_saveDummyData();
 		$this->assertFileExists($api->_getDummyDataFileName(), "DummyData file was not created correctly.");
 
@@ -404,9 +404,9 @@ class LibraryTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param LeagueAPI $api
+	 * @param TestBaseAPI $api
 	 */
-	public function testDestruct(LeagueAPI $api )
+	public function testDestruct(TestBaseAPI $api )
 	{
 		$api->__destruct();
 		$this->assertTrue(true);

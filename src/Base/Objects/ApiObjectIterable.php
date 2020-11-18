@@ -17,29 +17,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare(strict_types=1);
+namespace RiotAPI\Base\Objects;
 
-use PHPUnit\Framework\TestCase;
-
-use RiotAPI\Tests\TestBaseAPI;
-use RiotAPI\Base\Definitions\Region;
-use RiotAPI\Base\Exceptions\SettingsException;
-
-
-class StaticDataLinkingTest extends TestCase
+/**
+ *   Class ApiObjectIterable
+ *
+ * @package RiotAPI\LeagueAPI\Objects
+ */
+abstract class ApiObjectIterable extends ApiObject implements \Iterator
 {
-	public function testInit()
+	/**
+	 * @var array
+	 * @internal
+	 */
+	protected $_iterable = [];
+
+	public function rewind()
 	{
-		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY                => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION             => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA     => true,
-			LeagueAPI::SET_STATICDATA_LINKING => true,
-			LeagueAPI::SET_CACHE_CALLS        => true,
-		]);
+		reset($this->_iterable);
+	}
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+	public function current()
+	{
+		return current($this->_iterable);
+	}
 
-		return $api;
+	public function key()
+	{
+		return key($this->_iterable);
+	}
+
+	public function next()
+	{
+		return next($this->_iterable);
+	}
+
+	public function valid()
+	{
+		return ($this->key() !== null && $this->key() !== false);
 	}
 }

@@ -19,8 +19,12 @@
 
 namespace RiotAPI\Tests;
 
+use ReflectionClass;
+
 use PHPUnit\Framework\TestCase;
+
 use RiotAPI\Base\Objects\IApiObject;
+use RiotAPI\Base\Objects\ApiObject;
 
 /**
  *   Class RiotAPITestCase
@@ -87,7 +91,7 @@ class RiotAPITestCase extends TestCase
 				continue; // TODO: Continue?
 
 			//  For each property parse its DataType
-			$dataType = RiotAPI\Base\Objects\ApiObject::getPropertyDataType($propRef->getDocComment());
+			$dataType = ApiObject::getPropertyDataType($propRef->getDocComment());
 
 			//  Check if its data type is non-standard data type (our special object)
 			if ($dataType !== false)

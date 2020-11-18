@@ -11,3 +11,4 @@ tests/Base/Definition/cache-fcp/
 
 # Cache
 src/Base/cache/
+.phpunit.result.cache

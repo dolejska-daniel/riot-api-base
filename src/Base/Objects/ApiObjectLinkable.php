@@ -17,36 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RiotAPI\Base\Definitions;
+namespace RiotAPI\Base\Objects;
 
 
 /**
- *   Interface IPlatform
+ *   Class ApiObjectLinkable
  *
- * @package RiotAPI\Base\Definitions
+ * @package RiotAPI\LeagueAPI\Objects
  */
-interface IPlatform
+abstract class ApiObjectLinkable extends ApiObject
 {
 	/**
-	 *   Returns platform list by region.
-	 *
-	 * @return array
+	 * @var null|array|object
 	 */
-	public function getList(): array;
+	public $staticData = null;
 
-	/**
-	 *   Returns platform name based on region identifier (can either be string or internal numeric ID).
-	 *
-	 * @param string $region
-	 * @return string
-	 */
-	public function getPlatformName( string $region ): string;
-
-	/**
-	 *   Returns region name based on platform identifier (can either be string or internal numeric ID).
-	 *
-	 * @param string $platform
-	 * @return string
-	 */
-	public function getContinentRegion( string $platform ): string;
+	public function __get( $name )
+	{
+		return $this->staticData->$name;
+	}
 }

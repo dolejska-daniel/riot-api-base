@@ -28,14 +28,8 @@ use RiotAPI\Base\Definitions\IRegion;
 use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Definitions\IRateLimitControl;
 use RiotAPI\Base\Definitions\RateLimitControl;
-
-use RiotAPI\Base\Objects;
-use RiotAPI\Base\Objects\IApiObject;
-use RiotAPI\Base\Objects\IApiObjectExtension;
-
 use RiotAPI\Base\Exceptions\GeneralException;
 use RiotAPI\Base\Exceptions\RequestException;
-use RiotAPI\Base\Exceptions\RequestParameterException;
 use RiotAPI\Base\Exceptions\ServerException;
 use RiotAPI\Base\Exceptions\ServerLimitException;
 use RiotAPI\Base\Exceptions\SettingsException;
@@ -43,6 +37,7 @@ use RiotAPI\Base\Exceptions\DataNotFoundException;
 use RiotAPI\Base\Exceptions\ForbiddenException;
 use RiotAPI\Base\Exceptions\UnauthorizedException;
 use RiotAPI\Base\Exceptions\UnsupportedMediaTypeException;
+use RiotAPI\Base\Objects\IApiObjectExtension;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
@@ -102,6 +97,13 @@ abstract class BaseAPI
 	const
 		KEY_AS_QUERY_PARAM = 'keyInclude:query',
 		KEY_AS_HEADER      = 'keyInclude:header';
+
+	/**
+	 * Cache constants used to identify cache target.
+	 */
+	const
+		CACHE_KEY_RLC = 'rate-limit.cache',
+		CACHE_KEY_CCC = 'api-calls.cache';
 
 	/**
 	 * Available API headers.
@@ -262,7 +264,7 @@ abstract class BaseAPI
 	public function __construct(array $settings, IRegion $custom_regionDataProvider = null, IPlatform $custom_platformDataProvider = null)
 	{
 		//  Checks if required settings are present
-		foreach (self::SETTINGS_REQUIRED as $key)
+		foreach (self::SETTINGS_REQUIRED + $this::SETTINGS_REQUIRED as $key)
 			if (array_search($key, array_keys($settings), true) === false)
 				throw new SettingsException("Required settings parameter '$key' is missing!");
 
@@ -302,7 +304,7 @@ abstract class BaseAPI
 		}
 
 		//  Assigns allowed settings
-		foreach (self::SETTINGS_ALLOWED as $key)
+		foreach (self::SETTINGS_ALLOWED + $this::SETTINGS_ALLOWED as $key)
 			if (isset($settings[$key]))
 				$this->settings[$key] = $settings[$key];
 
@@ -415,24 +417,7 @@ abstract class BaseAPI
 	 */
 	public function _setupCacheCalls()
 	{
-		if ($this->isSettingSet(self::SET_CACHE_CALLS_LENGTH) == false)
-		{
-			//  Value is not set, setting default values
-			$this->setSetting(self::SET_CACHE_CALLS_LENGTH, [
-				self::RESOURCE_CHAMPION         => 60 * 10,
-				self::RESOURCE_CHAMPIONMASTERY  => 60 * 60,
-				self::RESOURCE_LEAGUE           => 60 * 10,
-				self::RESOURCE_MATCH            => 0,
-				self::RESOURCE_SPECTATOR        => 0,
-				self::RESOURCE_STATICDATA       => 60 * 60 * 24,
-				self::RESOURCE_STATUS           => 60,
-				self::RESOURCE_SUMMONER         => 60 * 60,
-				self::RESOURCE_THIRD_PARTY_CODE => 0,
-				self::RESOURCE_TOURNAMENT       => 0,
-				self::RESOURCE_TOURNAMENT_STUB  => 0,
-			]);
-		}
-		else
+		if ($this->isSettingSet(self::SET_CACHE_CALLS_LENGTH))
 		{
 			$lengths = $this->getSetting(self::SET_CACHE_CALLS_LENGTH);
 
@@ -693,7 +678,7 @@ abstract class BaseAPI
 	 */
 	public function setSetting(string $name, $value): self
 	{
-		if (in_array($name, self::SETTINGS_INIT_ONLY))
+		if (in_array($name, self::SETTINGS_INIT_ONLY + $this::SETTINGS_INIT_ONLY))
 			throw new SettingsException("Settings option '$name' can only be set on initialization of the library.");
 
 		$this->settings[$name] = $value;
@@ -792,31 +777,9 @@ abstract class BaseAPI
 	 */
 	public function setTemporaryContinentRegionForPlatform(string $platform)
 	{
-		switch (strtolower($platform))
-		{
-			case Platform::EUROPE_WEST:
-			case Platform::EUROPE_EAST:
-			case Platform::TURKEY:
-			case Platform::RUSSIA:
-				$this->setTemporaryRegion(Region::EUROPE);
-				break;
-
-			case Platform::NORTH_AMERICA:
-			case Platform::LAMERICA_NORTH:
-			case Platform::LAMERICA_SOUTH:
-			case Platform::BRASIL:
-			case Platform::OCEANIA:
-				$this->setTemporaryRegion(Region::AMERICAS);
-				break;
-
-			case Platform::KOREA:
-			case Platform::JAPAN:
-				$this->setTemporaryRegion(Region::ASIA);
-				break;
-
-			default:
-				throw new GeneralException("Unable to convert provided platform ID to corresponding continent region.");
-		}
+		$current_platform = $this->getSetting(self::SET_PLATFORM);
+		$continent_region = $this->platforms->getContinentRegion($current_platform);
+		$this->setTemporaryRegion($continent_region);
 	}
 
 	/**
@@ -828,7 +791,7 @@ abstract class BaseAPI
 	 */
 	protected function useKey(string $keyType): self
 	{
-		$this->used_key = $keyType;
+		$this->used_key = $this->isSettingSet($keyType) ? $keyType : self::SET_KEY;
 		return $this;
 	}
 

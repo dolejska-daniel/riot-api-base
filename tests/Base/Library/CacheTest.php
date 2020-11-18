@@ -21,8 +21,9 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
+use RiotAPI\Tests\TestBaseAPI;
+use RiotAPI\Tests\RiotAPITestCase;
 
 
 class CacheTest extends TestCase
@@ -30,16 +31,15 @@ class CacheTest extends TestCase
 	public function testInit()
 	{
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_TOURNAMENT_KEY  => RiotAPITestCase::getApiTournamentKey(),
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_CALLS     => true,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
-			LeagueAPI::SET_USE_DUMMY_DATA  => true,
-			LeagueAPI::SET_SAVE_DUMMY_DATA => getenv('SAVE_DUMMY_DATA') ?? false,
+			TestBaseAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_CALLS     => true,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_USE_DUMMY_DATA  => true,
+			TestBaseAPI::SET_SAVE_DUMMY_DATA => getenv('SAVE_DUMMY_DATA') ?? false,
 		]);
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+		$this->assertInstanceOf(TestBaseAPI::class, $api);
 		$this->assertNotNull($api->getCCC());
 		$this->assertNotNull($api->getRLC());
 		$api->clearCache();
@@ -57,7 +57,7 @@ class CacheTest extends TestCase
 	public function testCreateAndSaveData( array $args )
 	{
 		/**
-		 * @var CacheTestCustomLeagueAPI $api
+		 * @var CacheTestCustomTestBaseAPI $api
 		 * @var string $hash
 		 */
 		list($api, $hash) = $args;
@@ -78,16 +78,16 @@ class CacheTest extends TestCase
 	public function testLoadAndValidateData( array $args )
 	{
 		/**
-		 * @var CustomLeagueAPI $api
+		 * @var CustomTestBaseAPI $api
 		 * @var string $hash
 		 */
 		list($api, $hash, $data) = $args;
 
 		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY             => "INVALID_KEY",
-			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
-			LeagueAPI::SET_CACHE_CALLS     => true,
-			LeagueAPI::SET_CACHE_RATELIMIT => true,
+			TestBaseAPI::SET_KEY             => "INVALID_KEY",
+			TestBaseAPI::SET_REGION          => Region::EUROPE_EAST,
+			TestBaseAPI::SET_CACHE_CALLS     => true,
+			TestBaseAPI::SET_CACHE_RATELIMIT => true,
 		]);
 
 		$this->assertTrue($api->getCCC()->isCallCached($hash), "Failed to detect that the call is already cached from previous instance.");

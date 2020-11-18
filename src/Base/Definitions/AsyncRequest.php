@@ -19,7 +19,6 @@
 
 namespace RiotAPI\Base\Definitions;
 
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
 
