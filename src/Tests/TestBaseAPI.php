@@ -17,29 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare(strict_types=1);
+namespace RiotAPI\Tests;
 
-use PHPUnit\Framework\TestCase;
+use RiotAPI\Base\BaseAPI;
 
-use RiotAPI\Tests\TestBaseAPI;
-use RiotAPI\Base\Definitions\Region;
-use RiotAPI\Base\Exceptions\SettingsException;
+class TestBaseAPI extends BaseAPI
+{    
+	/** @var AsyncRequest $next_async_request */
+	public $next_async_request;
 
+	/** @var AsyncRequest[] $async_requests */
+	public $async_requests;
 
-class StaticDataLinkingTest extends TestCase
-{
-	public function testInit()
+	/** @var Client[] $async_clients */
+    public $async_clients;
+    
+	public function getCCC()
 	{
-		$api = new TestBaseAPI([
-			LeagueAPI::SET_KEY                => RiotAPITestCase::getApiKey(),
-			LeagueAPI::SET_REGION             => Region::EUROPE_EAST,
-			LeagueAPI::SET_USE_DUMMY_DATA     => true,
-			LeagueAPI::SET_STATICDATA_LINKING => true,
-			LeagueAPI::SET_CACHE_CALLS        => true,
-		]);
+		return $this->ccc;
+	}
 
-		$this->assertInstanceOf(LeagueAPI::class, $api);
+	public function getRLC()
+	{
+		return $this->rlc;
+	}
 
-		return $api;
+	public function saveCache(): bool
+	{
+		return parent::saveCache();
 	}
 }

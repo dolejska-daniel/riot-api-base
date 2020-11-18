@@ -21,34 +21,15 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
-
-
-class CacheTestCustomLeagueAPI extends LeagueAPI
-{
-	public function getCCC()
-	{
-		return $this->ccc;
-	}
-
-	public function getRLC()
-	{
-		return $this->rlc;
-	}
-
-	public function saveCache(): bool
-	{
-		return parent::saveCache();
-	}
-}
 
 
 class CacheTest extends TestCase
 {
 	public function testInit()
 	{
-		$api = new CacheTestCustomLeagueAPI([
+		$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
 			LeagueAPI::SET_TOURNAMENT_KEY  => RiotAPITestCase::getApiTournamentKey(),
 			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
@@ -102,7 +83,7 @@ class CacheTest extends TestCase
 		 */
 		list($api, $hash, $data) = $args;
 
-		$api = new CacheTestCustomLeagueAPI([
+		$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY             => "INVALID_KEY",
 			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
 			LeagueAPI::SET_CACHE_CALLS     => true,

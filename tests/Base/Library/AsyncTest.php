@@ -21,23 +21,10 @@ declare(strict_types=1);
 
 use GuzzleHttp\Client;
 
-use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Objects\SummonerDto;
 use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Definitions\AsyncRequest;
-
-
-class AsyncTestCustomLeagueAPI extends LeagueAPI
-{
-	/** @var AsyncRequest $next_async_request */
-	public $next_async_request;
-
-	/** @var AsyncRequest[] $async_requests */
-	public $async_requests;
-
-	/** @var Client[] $async_clients */
-	public $async_clients;
-}
 
 
 class AsyncTest extends RiotAPITestCase
@@ -48,14 +35,14 @@ class AsyncTest extends RiotAPITestCase
 	public static $onRejectedCalls = 0;
 	public static $summonerList = [];
 
-	/** @var AsyncTestCustomLeagueAPI */
+	/** @var TestBaseAPI */
 	private static $api;
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		self::$api = new AsyncTestCustomLeagueAPI([
+		self::$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY => RiotAPITestCase::getApiKey(),
 			LeagueAPI::SET_REGION => Region::EUROPE_EAST,
 			LeagueAPI::SET_USE_DUMMY_DATA  => true,

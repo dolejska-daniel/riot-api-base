@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
 
 
@@ -32,7 +32,7 @@ class LiveTest extends TestCase
 		if (getenv("TRAVIS_PULL_REQUEST"))
 			$this->markTestSkipped("Skipping live tests in PRs.");
 
-		$api = new LeagueAPI([
+		$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY                => RiotAPITestCase::getApiKey(),
 			LeagueAPI::SET_TOURNAMENT_KEY     => RiotAPITestCase::getApiTournamentKey(),
 			LeagueAPI::SET_REGION             => Region::EUROPE_EAST,
@@ -73,7 +73,7 @@ class LiveTest extends TestCase
 	{
 		$this->markAsRisky();
 
-		$api = new LeagueAPI([
+		$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY         => "INVALID_KEY",
 			LeagueAPI::SET_REGION      => Region::EUROPE_EAST,
 			LeagueAPI::SET_CACHE_CALLS => true,

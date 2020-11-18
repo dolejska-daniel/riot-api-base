@@ -19,7 +19,7 @@
 
 namespace RiotAPI\Base\Definitions;
 
-use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Tests\TestBaseAPI;
 
 
 /**

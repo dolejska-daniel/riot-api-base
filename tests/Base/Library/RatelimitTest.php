@@ -22,7 +22,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 use RiotAPI\Base\Exceptions\ServerLimitException;
-use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Tests\TestBaseAPI;
 use RiotAPI\Base\Definitions\Region;
 
 
@@ -30,7 +30,7 @@ class RatelimitTest extends RiotAPITestCase
 {
 	public function testInit()
 	{
-		$api = new LeagueAPI([
+		$api = new TestBaseAPI([
 			LeagueAPI::SET_KEY             => RiotAPITestCase::getApiKey(),
 			LeagueAPI::SET_REGION          => Region::EUROPE_EAST,
 			LeagueAPI::SET_USE_DUMMY_DATA  => true,

@@ -19,8 +19,6 @@
 
 namespace RiotAPI\Base\Utils;
 
-use Nette\Utils\Strings;
-
 /**
  *   Class MethodDescriptor
  *
@@ -71,7 +69,8 @@ class MethodDescriptor
 		}
 
 		preg_match('/^([\S\s]+?)\*\s+(@|\*\/)/', $docComment, $matches);
-		$desc = Strings::trim(@$matches[1] ?: "", Strings::TRIM_CHARACTERS . '*/');
+		$desc = trim(@$matches[1] ?: "")
+		$desc = trim(@$desc, "*/")
 		$this->description = Strings::replace($desc, '/(\s*\n\s|\s\*\s)/');
 	}
 

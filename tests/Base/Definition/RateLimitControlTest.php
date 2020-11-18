@@ -19,7 +19,6 @@
 
 declare(strict_types=1);
 
-use RiotAPI\Base\LeagueAPI;
 use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Base\Definitions\RateLimitControl;
 

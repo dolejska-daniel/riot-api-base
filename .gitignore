@@ -7,8 +7,7 @@ composer.lock
 
 # Testing data
 tests/Coverage/
-tests/LeagueAPI/Definition/cache-fcp/
+tests/Base/Definition/cache-fcp/
 
 # Cache
-src/LeagueAPI/cache/
-src/DataDragonAPI/cache/
+src/Base/cache/

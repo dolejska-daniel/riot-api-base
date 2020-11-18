@@ -675,7 +675,7 @@ abstract class BaseAPI
 	 *
 	 * @return mixed
 	 */
-	public function getSetting( string $name, $defaultValue = null )
+	public function getSetting(string $name, $defaultValue = null)
 	{
 		return $this->isSettingSet($name)
 			? $this->settings[$name]
@@ -691,7 +691,7 @@ abstract class BaseAPI
 	 * @return LeagueAPI
 	 * @throws SettingsException
 	 */
-	public function setSetting( string $name, $value ): self
+	public function setSetting(string $name, $value): self
 	{
 		if (in_array($name, self::SETTINGS_INIT_ONLY))
 			throw new SettingsException("Settings option '$name' can only be set on initialization of the library.");
@@ -708,7 +708,7 @@ abstract class BaseAPI
 	 * @return LeagueAPI
 	 * @throws SettingsException
 	 */
-	public function setSettings( array $values ): self
+	public function setSettings(array $values): self
 	{
 		foreach ($values as $name => $value)
 			$this->setSetting($name, $value);
@@ -723,7 +723,7 @@ abstract class BaseAPI
 	 *
 	 * @return bool
 	 */
-	public function isSettingSet( string $name ): bool
+	public function isSettingSet(string $name): bool
 	{
 		return isset($this->settings[$name]) && !is_null($this->settings[$name]);
 	}
@@ -737,7 +737,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setRegion( string $region ): self
+	public function setRegion(string $region): self
 	{
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($region));
 		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($region));
@@ -753,7 +753,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setTemporaryRegion( string $tempRegion ): self
+	public function setTemporaryRegion(string $tempRegion): self
 	{
 		$this->setSetting(self::SET_ORIG_REGION, $this->getSetting(self::SET_REGION));
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($tempRegion));
@@ -826,7 +826,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	protected function useKey( string $keyType ): self
+	protected function useKey(string $keyType): self
 	{
 		$this->used_key = $keyType;
 		return $this;
@@ -839,7 +839,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	protected function setEndpoint( string $endpoint ): self
+	protected function setEndpoint(string $endpoint): self
 	{
 		$this->endpoint = $endpoint;
 		return $this;
@@ -853,7 +853,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	protected function setResource( string $resource, string $endpoint ): self
+	protected function setResource(string $resource, string $endpoint): self
 	{
 		$this->resource = $resource;
 		$this->resource_endpoint = $endpoint;
@@ -888,7 +888,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	protected function addQuery( string $name, $value ): self
+	protected function addQuery(string $name, $value): self
 	{
 		if (!is_null($value))
 		{
@@ -905,7 +905,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	protected function setData( string $data ): self
+	protected function setData(string $data): self
 	{
 		$this->post_data = $data;
 		return $this;
@@ -951,7 +951,7 @@ abstract class BaseAPI
 	 *
 	 * @return LeagueAPI
 	 */
-	public function nextAsync( callable $onFulfilled = null, callable $onRejected = null, string $group = "default" ): self
+	public function nextAsync(callable $onFulfilled = null, callable $onRejected = null, string $group = "default"): self
 	{
 		$client = @$this->async_clients[$group];
 		if (!$client)
@@ -969,7 +969,7 @@ abstract class BaseAPI
 	 *
 	 * @param string $group
 	 */
-	public function commitAsync( string $group = "default" )
+	public function commitAsync(string $group = "default")
 	{
 		/** @var AsyncRequest[] $requests */
 		$requests = @$this->async_requests[$group] ?: [];
@@ -988,7 +988,7 @@ abstract class BaseAPI
 	 *
 	 * @return null
 	 */
-	function resolveOrEnqueuePromise( PromiseInterface $promise, callable $resultCallback = null )
+	function resolveOrEnqueuePromise(PromiseInterface $promise, callable $resultCallback = null)
 	{
 		if ($this->next_async_request)
 		{
@@ -1016,7 +1016,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	protected function makeCall( string $overrideRegion = null, string $method = self::METHOD_GET ): PromiseInterface
+	protected function makeCall(string $overrideRegion = null, string $method = self::METHOD_GET): PromiseInterface
 	{
 		if ($overrideRegion)
 			$this->setTemporaryRegion($overrideRegion);
@@ -1139,7 +1139,7 @@ abstract class BaseAPI
 	 * @throws ServerException
 	 * @throws ServerLimitException
 	 */
-	protected function processCallResult( array $response_headers = null, string $response_body = null, int $response_code = 0 )
+	protected function processCallResult(array $response_headers = null, string $response_body = null, int $response_code = 0)
 	{
 		// flatten response headers array from Guzzle
 		array_walk($response_headers, function ( &$value ) {
@@ -1193,7 +1193,7 @@ abstract class BaseAPI
 	 *
 	 * @throws RequestException
 	 */
-	public function _loadDummyData( &$headers, &$response, &$response_code )
+	public function _loadDummyData(&$headers, &$response, &$response_code)
 	{
 		$data = @file_get_contents($this->_getDummyDataFileName());
 		$data = @unserialize($data);
@@ -1212,7 +1212,7 @@ abstract class BaseAPI
 	 *
 	 * @param string|null $dummyData_file
 	 */
-	public function _saveDummyData( string $dummyData_file = null )
+	public function _saveDummyData(string $dummyData_file = null)
 	{
 		file_put_contents($dummyData_file ?: $this->_getDummyDataFileName(), serialize([
 			'headers'  => $this->result_headers,
@@ -1231,7 +1231,7 @@ abstract class BaseAPI
 	 *
 	 * @throws RequestException
 	 */
-	protected function _beforeCall( string $url, string $requestHash )
+	protected function _beforeCall(string $url, string $requestHash)
 	{
 		foreach ($this->beforeCall as $function)
 		{
@@ -1251,7 +1251,7 @@ abstract class BaseAPI
 	 * @param string $requestHash
 	 * @param string $dummyData_file
 	 */
-	protected function _afterCall( string $url, string $requestHash, string $dummyData_file )
+	protected function _afterCall(string $url, string $requestHash, string $dummyData_file)
 	{
 		foreach ($this->afterCall as $function)
 		{
@@ -1270,7 +1270,7 @@ abstract class BaseAPI
 	 *
 	 * @throws GeneralException
 	 */
-	public function _getCallUrl( &$requestHeaders = [] ): string
+	public function _getCallUrl(&$requestHeaders = []): string
 	{
 		//  TODO: move logic to Guzzle?
 		$requestHeaders = [];
@@ -1354,7 +1354,7 @@ abstract class BaseAPI
 	 * @throws ServerLimitException
 	 * @throws GeneralException
 	 */
-	public function makeTestEndpointCall( $specs, string $region = null, string $method = null )
+	public function makeTestEndpointCall($specs, string $region = null, string $method = null)
 	{
 		$resultPromise = $this->setEndpoint("/lol/test-endpoint/v0/{$specs}")
 			->setResource("v0", "/lol/test-endpoint/v0/%s")
