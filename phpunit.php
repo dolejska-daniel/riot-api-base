@@ -18,7 +18,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use RiotAPI\LeagueAPI\Objects;
+use RiotAPI\Base\Objects\IApiObject;
 
 /**
  *   Class RiotAPITestCase
@@ -35,7 +35,7 @@ class RiotAPITestCase extends TestCase
 	 *
 	 * @throws ReflectionException
 	 */
-	public function checkObjectPropertiesAndDataValidityOfObjectList ( array $data, array $originalData, string $objectsClass )
+	public function checkObjectPropertiesAndDataValidityOfObjectList (array $data, array $originalData, string $objectsClass)
 	{
 		//  Check list validity
 		$this->assertTrue(is_array($data) && !empty($data), "Object list is empty!");
@@ -55,13 +55,13 @@ class RiotAPITestCase extends TestCase
 	/**
 	 *   Recursively validate object's properties.
 	 *
-	 * @param Objects\IApiObject $object
-	 * @param array              $originalData
-	 * @param string|null        $objectClass
+	 * @param IApiObject  $object
+	 * @param array       $originalData
+	 * @param string|null $objectClass
 	 *
 	 * @throws ReflectionException
 	 */
-	public function checkObjectPropertiesAndDataValidity( Objects\IApiObject $object, array $originalData, string $objectClass = null )
+	public function checkObjectPropertiesAndDataValidity(IApiObject $object, array $originalData, string $objectClass = null)
 	{
 		//  Check class of this object (if required - not required if called from list validation function)
 		if (!is_null($objectClass))
@@ -85,7 +85,7 @@ class RiotAPITestCase extends TestCase
 				continue; // TODO: Continue?
 
 			//  For each property parse its DataType
-			$dataType = RiotAPI\LeagueAPI\Objects\ApiObject::getPropertyDataType($propRef->getDocComment());
+			$dataType = RiotAPI\Base\Objects\ApiObject::getPropertyDataType($propRef->getDocComment());
 
 			//  Check if its data type is non-standard data type (our special object)
 			if ($dataType !== false)
@@ -175,9 +175,9 @@ class RiotAPITestCase extends TestCase
 	 *
 	 * @return string
 	 */
-	public static function getApiTournamentKey(): string
+	public static function getApiCustomKey(string $name): string
 	{
-		return getenv('API_TOURNAMENT_KEY') ?: 'API_KEY_UNKNOWN';
+		return getenv("API_{$name}_KEY") ?: 'API_KEY_UNKNOWN';
 	}
 }
 

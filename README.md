@@ -114,8 +114,8 @@ How to begin?
 //  Include all required files (installation via Composer is required)
 require_once __DIR__  . "/vendor/autoload.php";
 
-use RiotAPI\LeagueAPI\LeagueAPI;
-use RiotAPI\LeagueAPI\Definitions\Region;
+use RiotAPI\Base\LeagueAPI;
+use RiotAPI\Base\Definitions\Region;
 
 //  Initialize the library
 $api = new LeagueAPI([
