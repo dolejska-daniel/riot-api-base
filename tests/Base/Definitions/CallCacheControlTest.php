@@ -19,6 +19,7 @@
 
 declare(strict_types=1);
 
+use RiotAPI\Base\Definitions\ICallCacheControl;
 use RiotAPI\Base\Definitions\CallCacheControl;
 use RiotAPI\Tests\RiotAPITestCase;
 
@@ -59,11 +60,11 @@ class CallCacheControlTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 *
-	 * @return CallCacheControl
+	 * @return ICallCacheControl
 	 */
-	public function testSaveCallData( CallCacheControl $control )
+	public function testSaveCallData( ICallCacheControl $control )
 	{
 		$hash = md5("https://global.api.riotgames.com/lol/tournament-stub/v3/providers");
 		$this->assertTrue($control->saveCallData($hash, self::$data, 1));
@@ -74,9 +75,9 @@ class CallCacheControlTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 */
-	public function testLoadCallData_Invalid( CallCacheControl $control )
+	public function testLoadCallData_Invalid( ICallCacheControl $control )
 	{
 		$hash = md5(random_bytes(64));
 		$this->assertFalse($control->loadCallData($hash));
@@ -85,9 +86,9 @@ class CallCacheControlTest extends RiotAPITestCase
 	/**
 	 * @depends testSaveCallData
 	 *
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 */
-	public function testLoadCallData_Valid( CallCacheControl $control )
+	public function testLoadCallData_Valid( ICallCacheControl $control )
 	{
 		$hash = md5("https://global.api.riotgames.com/lol/tournament-stub/v3/providers");
 		$this->assertSame(self::$data, $control->loadCallData($hash));
@@ -96,9 +97,9 @@ class CallCacheControlTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 */
-	public function testIsCallCached_False( CallCacheControl $control )
+	public function testIsCallCached_False( ICallCacheControl $control )
 	{
 		$hash = md5(random_bytes(64));
 		$this->assertFalse($control->isCallCached($hash));
@@ -107,9 +108,9 @@ class CallCacheControlTest extends RiotAPITestCase
 	/**
 	 * @depends testSaveCallData
 	 *
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 */
-	public function testIsCallCached_True( CallCacheControl $control )
+	public function testIsCallCached_True( ICallCacheControl $control )
 	{
 		$hash = md5("https://global.api.riotgames.com/lol/tournament-stub/v3/providers");
 		$this->assertTrue($control->isCallCached($hash));
@@ -119,9 +120,9 @@ class CallCacheControlTest extends RiotAPITestCase
 	 * @depends testSaveCallData
 	 *
 	 * @runInSeparateProcess
-	 * @param CallCacheControl $control
+	 * @param ICallCacheControl $control
 	 */
-	public function testIsCallCached_Expired( CallCacheControl $control )
+	public function testIsCallCached_Expired( ICallCacheControl $control )
 	{
 		$hash = md5("https://global.api.riotgames.com/lol/tournament-stub/v3/providers");
 		sleep(2);

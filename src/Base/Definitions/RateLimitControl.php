@@ -35,7 +35,7 @@ class RateLimitControl implements IRateLimitControl
 	 *
 	 * @param IRegion $region
 	 */
-	public function __construct( IRegion $region )
+	public function __construct(IRegion $region)
 	{
 		$this->storage = new RateLimitStorage($region);
 	}
@@ -77,7 +77,7 @@ class RateLimitControl implements IRateLimitControl
 	 *
 	 * @return bool
 	 */
-	public function canCall( string $api_key, string $region, string $resource, string $endpoint ): bool
+	public function canCall(string $api_key, string $region, string $resource, string $endpoint): bool
 	{
 		return $this->storage->canCall($api_key, $region, $resource, $endpoint);
 	}
@@ -91,7 +91,7 @@ class RateLimitControl implements IRateLimitControl
 	 * @param string $app_limit_header
 	 * @param string $method_limit_header
 	 */
-	public function registerLimits( string $api_key, string $region, string $endpoint, string $app_limit_header = null, string $method_limit_header = null )
+	public function registerLimits(string $api_key, string $region, string $endpoint, ?string $app_limit_header, ?string $method_limit_header)
 	{
 		if ($app_limit_header)
 			$this->storage->registerAppLimits($api_key, $region, $app_limit_header);
@@ -109,7 +109,7 @@ class RateLimitControl implements IRateLimitControl
 	 * @param string $app_count_header
 	 * @param string $method_count_header
 	 */
-	public function registerCall( string $api_key, string $region, string $endpoint, string $app_count_header = null, string $method_count_header = null )
+	public function registerCall(string $api_key, string $region, string $endpoint, ?string $app_count_header, ?string $method_count_header)
 	{
 		$this->storage->registerCall($api_key, $region, $endpoint, $app_count_header, $method_count_header);
 	}

@@ -5,10 +5,7 @@ vendor/
 composer.phar
 composer.lock
 
-# Testing data
-tests/Coverage/
-tests/Base/Definition/cache-fcp/
-
 # Cache
 src/Base/cache/
+build
 .phpunit.result.cache

@@ -35,7 +35,7 @@ class RateLimitStorage
 	 *
 	 * @param IRegion $region
 	 */
-	public function __construct( IRegion $region )
+	public function __construct(IRegion $region)
 	{
 		foreach ($region->getList() as $regionId => $regionName)
 			$this->limits[$regionId] = [];
@@ -74,7 +74,7 @@ class RateLimitStorage
 	 * @param string $region
 	 * @param array  $limits
 	 */
-	public function initApp( string $api_key, string $region, array $limits )
+	public function initApp(string $api_key, string $region, array $limits)
 	{
 		$output = [];
 		foreach ($limits as $interval => $limit)
@@ -96,7 +96,7 @@ class RateLimitStorage
 	 * @param string $endpoint
 	 * @param array  $limits
 	 */
-	public function initMethod( string $api_key, string $region, string $endpoint, array $limits )
+	public function initMethod(string $api_key, string $region, string $endpoint, array $limits)
 	{
 		$output = [];
 		foreach ($limits as $interval => $limit)
@@ -118,7 +118,7 @@ class RateLimitStorage
 	 *
 	 * @return mixed
 	 */
-	public function getAppLimits( string $api_key, string $region )
+	public function getAppLimits(string $api_key, string $region)
 	{
 		return @$this->limits[$region][$api_key]['app'];
 	}
@@ -145,7 +145,7 @@ class RateLimitStorage
 	 * @param int    $timeInterval
 	 * @param int    $value
 	 */
-	public function setAppUsed( string $api_key, string $region, int $timeInterval, int $value )
+	public function setAppUsed(string $api_key, string $region, int $timeInterval, int $value)
 	{
 		$this->limits[$region][$api_key]['app'][$timeInterval]['used'] = $value;
 		if ($value == 1)
@@ -161,7 +161,7 @@ class RateLimitStorage
 	 * @param int    $timeInterval
 	 * @param int    $value
 	 */
-	public function setMethodUsed( string $api_key, string $region, string $endpoint, int $timeInterval, int $value )
+	public function setMethodUsed(string $api_key, string $region, string $endpoint, int $timeInterval, int $value)
 	{
 		$this->limits[$region][$api_key]['method'][$endpoint][$timeInterval]['used'] = $value;
 		if ($value == 1)
@@ -178,7 +178,7 @@ class RateLimitStorage
 	 *
 	 * @return bool
 	 */
-	public function canCall( string $api_key, string $region, string $resource, string $endpoint): bool
+	public function canCall(string $api_key, string $region, string $resource, string $endpoint): bool
 	{
 		$appLimits = $this->getAppLimits($api_key, $region);
 		// FIXME: Exclude staticdata resource from rate-limit constraints

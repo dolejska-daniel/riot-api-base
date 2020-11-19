@@ -37,16 +37,16 @@ interface IPlatform
 	/**
 	 *   Returns platform name based on region identifier (can either be string or internal numeric ID).
 	 *
-	 * @param string $region
+	 * @param $region
 	 * @return string
 	 */
-	public function getPlatformName( string $region ): string;
+	public function getPlatformName($region): string;
 
 	/**
 	 *   Returns region name based on platform identifier (can either be string or internal numeric ID).
 	 *
-	 * @param string $platform
+	 * @param $platform
 	 * @return string
 	 */
-	public function getContinentRegion( string $platform ): string;
+	public function getContinentRegion($platform): string;
 }

@@ -19,8 +19,9 @@
 
 declare(strict_types=1);
 
-use RiotAPI\Base\Definitions\Region;
+use RiotAPI\Base\Definitions\IRateLimitControl;
 use RiotAPI\Base\Definitions\RateLimitControl;
+use RiotAPI\Base\Definitions\Region;
 use RiotAPI\Tests\RiotAPITestCase;
 
 
@@ -68,9 +69,9 @@ class RateLimitControlTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param RateLimitControl $control
+	 * @param IRateLimitControl $control
 	 */
-	public function testSetLimits( RateLimitControl $control )
+	public function testSetLimits( IRateLimitControl $control )
 	{
 		$control->registerLimits(self::$apiKey, self::$region, self::$endpoint, self::$app_limit_header, self::$method_limit_header);
 	}
@@ -78,11 +79,11 @@ class RateLimitControlTest extends RiotAPITestCase
 	/**
 	 * @depends testInit
 	 *
-	 * @param RateLimitControl $control
+	 * @param IRateLimitControl $control
 	 *
-	 * @return RateLimitControl
+	 * @return IRateLimitControl
 	 */
-	public function testCanCall_True( RateLimitControl $control )
+	public function testCanCall_True( IRateLimitControl $control )
 	{
 		$this->assertTrue($control->canCall(self::$apiKey, self::$region, self::$resource, self::$endpoint));
 
@@ -92,11 +93,11 @@ class RateLimitControlTest extends RiotAPITestCase
 	/**
 	 * @depends testCanCall_True
 	 *
-	 * @param RateLimitControl $control
+	 * @param IRateLimitControl $control
 	 *
-	 * @return RateLimitControl
+	 * @return IRateLimitControl
 	 */
-	public function testRegisterCall( RateLimitControl $control )
+	public function testRegisterCall( IRateLimitControl $control )
 	{
 		$control->registerCall(self::$apiKey, self::$region, self::$endpoint, self::$app_count_header, self::$method_count_header);
 		return $control;
@@ -105,11 +106,11 @@ class RateLimitControlTest extends RiotAPITestCase
 	/**
 	 * @depends testRegisterCall
 	 *
-	 * @param RateLimitControl $control
+	 * @param IRateLimitControl $control
 	 *
-	 * @return RateLimitControl
+	 * @return IRateLimitControl
 	 */
-	public function testCanCall_False( RateLimitControl $control )
+	public function testCanCall_False( IRateLimitControl $control )
 	{
 		$this->assertFalse($control->canCall(self::$apiKey, self::$region, self::$resource, self::$endpoint));
 		return $control;
@@ -118,9 +119,9 @@ class RateLimitControlTest extends RiotAPITestCase
 	/**
 	 * @depends testCanCall_False
 	 *
-	 * @param RateLimitControl $control
+	 * @param IRateLimitControl $control
 	 */
-	public function testCanCall_TrueExpired( RateLimitControl $control )
+	public function testCanCall_TrueExpired( IRateLimitControl $control )
 	{
 		sleep(1);
 		$this->assertTrue($control->canCall(self::$apiKey, self::$region, self::$resource, self::$endpoint));

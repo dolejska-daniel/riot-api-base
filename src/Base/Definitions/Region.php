@@ -34,25 +34,15 @@ class Region implements IRegion
 	// ==================================================================dd=
 
 	const NORTH_AMERICA = 'na';
-
 	const EUROPE_WEST = 'euw';
-
 	const EUROPE_EAST = 'eune';
-
 	const LAMERICA_SOUTH = 'las';
-
 	const LAMERICA_NORTH = 'lan';
-
 	const BRASIL = 'br';
-
 	const RUSSIA = 'ru';
-
 	const TURKEY = 'tr';
-
 	const OCEANIA = 'oce';
-
 	const KOREA = 'kr';
-
 	const JAPAN = 'jp';
 
 	public static $list = array(
@@ -79,15 +69,15 @@ class Region implements IRegion
 
 	public function getList(): array
 	{
-		return self::$list;
+		return $this::$list;
 	}
 
-	public function getRegionName( string $region ): string
+	public function getRegionName($region): string
 	{
 		$region = strtolower($region);
-		if (!isset(self::$list[$region]))
+		if (!isset($this::$list[$region]))
 			throw new GeneralException('Invalid region provided. Can not find requested region.');
 
-		return self::$list[$region];
+		return $this::$list[$region];
 	}
 }

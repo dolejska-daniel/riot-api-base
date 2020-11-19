@@ -34,31 +34,19 @@ class Platform implements IPlatform
 	// ==================================================================dd=
 
 	const NORTH_AMERICA = 'na1';
-
 	const EUROPE_WEST = 'euw1';
-
 	const EUROPE_EAST = 'eun1';
-
 	const LAMERICA_SOUTH = 'la2';
-
 	const LAMERICA_NORTH = 'la1';
-
 	const BRASIL = 'br1';
-
 	const RUSSIA = 'ru';
-
 	const TURKEY = 'tr1';
-
 	const OCEANIA = 'oc1';
-
 	const KOREA = 'kr';
-
 	const JAPAN = 'jp1';
 
 	const AMERICAS = 'americas';
-
 	const EUROPE = 'europe';
-
 	const ASIA = 'asia';
 
 	public static $list = array(
@@ -85,20 +73,20 @@ class Platform implements IPlatform
 
 	public function getList(): array
 	{
-		return self::$list;
+		return $this::$list;
 	}
 
-	public function getPlatformName( string $region ): string
+	public function getPlatformName($region): string
 	{
-		if (!isset(self::$list[$region]))
+		if (!isset($this::$list[$region]))
 			throw new GeneralException('Invalid region provided. Can not find requested platform.');
 
-		return self::$list[$region];
+		return $this::$list[$region];
 	}
 
-	public function getContinentRegion( string $platform ): string
+	public function getContinentRegion($platform): string
 	{
-		switch (strtolower($platform))
+		switch ($this->getPlatformName($platform))
 		{
 			case Platform::EUROPE_WEST:
 			case Platform::EUROPE_EAST:

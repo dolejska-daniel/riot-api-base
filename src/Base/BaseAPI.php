@@ -268,6 +268,11 @@ abstract class BaseAPI
 			if (array_search($key, array_keys($settings), true) === false)
 				throw new SettingsException("Required settings parameter '$key' is missing!");
 
+		//  Assigns allowed settings
+		foreach (self::SETTINGS_ALLOWED + $this::SETTINGS_ALLOWED as $key)
+			if (isset($settings[$key]))
+				$this->settings[$key] = $settings[$key];
+
 		//  Checks SET_KEY_INCLUDE_TYPE value
 		if (isset($settings[self::SET_KEY_INCLUDE_TYPE])
 			&& in_array($settings[self::SET_KEY_INCLUDE_TYPE], [ self::KEY_AS_HEADER, self::KEY_AS_QUERY_PARAM ], true) == false)
@@ -275,57 +280,22 @@ abstract class BaseAPI
 			throw new SettingsException("Value of settings parameter '" . self::SET_KEY_INCLUDE_TYPE . "' is not valid.");
 		}
 
-		//  Checks SET_EXTENSIONS value
-		if (isset($settings[self::SET_EXTENSIONS]))
-		{
-			if (!is_array($settings[self::SET_EXTENSIONS]))
-			{
-				throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid.");
-			}
-			else
-			{
-				foreach ($settings[self::SET_EXTENSIONS] as $api_object => $extender)
-				{
-					try
-					{
-						$ref = new \ReflectionClass($extender);
-						if ($ref->implementsInterface(IApiObjectExtension::class) == false)
-							throw new SettingsException("ObjectExtender '$extender' does not implement IApiObjectExtension interface.");
-
-						if ($ref->isInstantiable() == false)
-							throw new SettingsException("ObjectExtender '$extender' is not instantiable.");
-					}
-					catch (\ReflectionException $ex)
-					{
-						throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid.", 0, $ex);
-					}
-				}
-			}
-		}
-
-		//  Assigns allowed settings
-		foreach (self::SETTINGS_ALLOWED + $this::SETTINGS_ALLOWED as $key)
-			if (isset($settings[$key]))
-				$this->settings[$key] = $settings[$key];
-
-		$this->regions = $custom_regionDataProvider
-			? $custom_regionDataProvider
-			: new Region();
-
-		$this->platforms = $custom_platformDataProvider
-			? $custom_platformDataProvider
-			: new Platform();
-
+		$this->regions = $custom_regionDataProvider ?: new Region();
+		$this->platforms = $custom_platformDataProvider ?: new Platform();
 		$this->guzzle = new Client($this->getSetting(self::SET_GUZZLE_CLIENT_CFG));
 
 		$this->_setupDefaultCacheProviderSettings();
 
+		//  Setup API object extension classes
+		if ($this->isSettingSet(self::SET_EXTENSIONS))
+			$this->_setupExtensions();
+
 		//  Some caching will be made, let's set up cache provider
-		if ($this->getSetting(self::SET_CACHE_CALLS) || $this->getSetting(self::SET_CACHE_RATELIMIT))
+		if ($this->isSettingSet(self::SET_CACHE_CALLS) || $this->isSettingSet(self::SET_CACHE_RATELIMIT))
 			$this->_setupCacheProvider();
 
 		//  Call data are going to be cached
-		if ($this->getSetting(self::SET_CACHE_CALLS))
+		if ($this->isSettingSet(self::SET_CACHE_CALLS))
 			$this->_setupCacheCalls();
 
 		//  Set up before calls callbacks
@@ -338,6 +308,34 @@ abstract class BaseAPI
 		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($this->getSetting(self::SET_REGION)));
 	}
 
+	/**
+	 *   Initializes library cache provider.
+	 *
+	 * @throws SettingsException
+	 */
+	protected function _setupExtensions()
+	{
+		if (!is_array($this->getSetting(self::SET_EXTENSIONS)))
+			throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid. Array expected.");
+
+		foreach ($this->getSetting(self::SET_EXTENSIONS) as $api_object => $extender)
+		{
+			try
+			{
+				$ref = new \ReflectionClass($extender);
+				if ($ref->implementsInterface(IApiObjectExtension::class) == false)
+					throw new SettingsException("ObjectExtender '$extender' does not implement IApiObjectExtension interface.");
+
+				if ($ref->isInstantiable() == false)
+					throw new SettingsException("ObjectExtender '$extender' is not instantiable.");
+			}
+			catch (\ReflectionException $ex)
+			{
+				throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid.", 0, $ex);
+			}
+		}
+	}
+
 	protected function _setupDefaultCacheProviderSettings()
 	{
 		//  If something should be cached
@@ -346,16 +344,14 @@ abstract class BaseAPI
 			$this->settings[self::SET_CACHE_PROVIDER] = FilesystemAdapter::class;
 		}
 
-		if ($this->getSetting(self::SET_CACHE_PROVIDER) === FilesystemAdapter::class)
+		if ($this->getSetting(self::SET_CACHE_PROVIDER) === FilesystemAdapter::class
+			&& !$this->isSettingSet(self::SET_CACHE_PROVIDER_PARAMS))
 		{
-			if (!$this->isSettingSet(self::SET_CACHE_PROVIDER_PARAMS))
-			{
-				$this->settings[self::SET_CACHE_PROVIDER_PARAMS] =  [
-					"RiotAPI-Default.cache",        // namespace
-					0,                              // default lifetime
-					sys_get_temp_dir() . "/RiotAPI" // directory
-				];
-			}
+			$this->settings[self::SET_CACHE_PROVIDER_PARAMS] =  [
+				"RiotAPI-Default",              // namespace
+				0,                              // default lifetime
+				sys_get_temp_dir() . "/RiotAPI" // directory
+			];
 		}
 	}
 
@@ -501,16 +497,14 @@ abstract class BaseAPI
 	 */
 	protected function _setupAfterCalls()
 	{
-		//  Save ratelimits received with this request if RateLimit cache is enabled
 		$this->afterCall[] = function () {
-			if ($this->getSetting(self::SET_CACHE_RATELIMIT, false) && $this->rlc != false)
+			if ($this->isSettingSet(self::SET_CACHE_RATELIMIT) && $this->rlc != false)
+			{
+				//  Save ratelimits received with this request if RateLimit cache is enabled
 				$this->rlc->registerLimits($this->getSetting($this->used_key), $this->getSetting(self::SET_REGION), $this->getResourceEndpoint(), @$this->result_headers[self::HEADER_APP_RATELIMIT], @$this->result_headers[self::HEADER_METHOD_RATELIMIT]);
-		};
-
-		//  Register, that call has been made if RateLimit cache is enabled
-		$this->afterCall[] = function () {
-			if ($this->getSetting(self::SET_CACHE_RATELIMIT, false) && $this->rlc != false)
+				//  Register, that call has been made if RateLimit cache is enabled
 				$this->rlc->registerCall($this->getSetting($this->used_key), $this->getSetting(self::SET_REGION), $this->getResourceEndpoint(), @$this->result_headers[self::HEADER_APP_RATELIMIT_COUNT], @$this->result_headers[self::HEADER_METHOD_RATELIMIT_COUNT]);
+			}
 		};
 
 		//  Save result data, if CallCache is enabled and when the old result has expired

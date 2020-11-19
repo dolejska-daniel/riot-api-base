@@ -32,7 +32,7 @@ interface IRateLimitControl
 	 *
 	 * @param IRegion $region
 	 */
-	public function __construct( IRegion $region );
+	public function __construct(IRegion $region);
 
 	/**
 	 *   Returns currently stored status of limits for given API key, region and endpoint.
@@ -55,7 +55,7 @@ interface IRateLimitControl
 	 *
 	 * @return bool
 	 */
-	public function canCall( string $api_key, string $region, string $resource, string $endpoint): bool;
+	public function canCall(string $api_key, string $region, string $resource, string $endpoint): bool;
 
 	/**
 	 *   Registers that new API call has been made.
@@ -68,7 +68,7 @@ interface IRateLimitControl
 	 *
 	 * @return
 	 */
-	public function registerLimits( string $api_key, string $region, string $endpoint, string $app_header, string $method_header );
+	public function registerLimits(string $api_key, string $region, string $endpoint, ?string $app_header, ?string $method_header);
 
 	/**
 	 *   Registers that new API call has been made.
@@ -81,7 +81,7 @@ interface IRateLimitControl
 	 *
 	 * @return
 	 */
-	public function registerCall( string $api_key, string $region, string $endpoint, string $app_header, string $method_header );
+	public function registerCall(string $api_key, string $region, string $endpoint, ?string $app_header, ?string $method_header);
 
 	/**
 	 *   Clears all currently saved data.
