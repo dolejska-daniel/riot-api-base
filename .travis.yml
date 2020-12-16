@@ -23,7 +23,7 @@ cache:
         - vendor/
 
 before_install:
-    - pecl install memcached
+    - yes "" | pecl install -f memcached
     - phpenv config-add travis.php.ini
 
 # Install dependencies
