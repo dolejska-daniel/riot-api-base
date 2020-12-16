@@ -17,9 +17,11 @@
 		<testsuite name="BaseAPI:Definition_Tests">
 			<directory>tests/Base/Definitions/</directory>
 		</testsuite>
+		<!--
 		<testsuite name="BaseAPI:Object_Tests">
 			<directory>tests/Base/Objects/</directory>
 		</testsuite>
+		-->
 	</testsuites>
 
 	<coverage cacheDirectory="build/cache/phpunit_coverage"
