@@ -264,18 +264,20 @@ abstract class BaseAPI
 	public function __construct(array $settings, IRegion $custom_regionDataProvider = null, IPlatform $custom_platformDataProvider = null)
 	{
 		//  Checks if required settings are present
-		foreach (self::SETTINGS_REQUIRED + $this::SETTINGS_REQUIRED as $key)
+		$settings_required = array_merge(self::SETTINGS_REQUIRED, $this::SETTINGS_REQUIRED);
+		foreach ($settings_required as $key)
 			if (array_search($key, array_keys($settings), true) === false)
 				throw new SettingsException("Required settings parameter '$key' is missing!");
 
 		//  Assigns allowed settings
-		foreach (self::SETTINGS_ALLOWED + $this::SETTINGS_ALLOWED as $key)
+		$settings_allowed = array_merge(self::SETTINGS_ALLOWED, $this::SETTINGS_ALLOWED);
+		foreach ($settings_allowed as $key)
 			if (isset($settings[$key]))
 				$this->settings[$key] = $settings[$key];
 
 		//  Checks SET_KEY_INCLUDE_TYPE value
 		if (isset($settings[self::SET_KEY_INCLUDE_TYPE])
-			&& in_array($settings[self::SET_KEY_INCLUDE_TYPE], [ self::KEY_AS_HEADER, self::KEY_AS_QUERY_PARAM ], true) == false)
+			&& in_array($settings[self::SET_KEY_INCLUDE_TYPE], [self::KEY_AS_HEADER, self::KEY_AS_QUERY_PARAM], true) == false)
 		{
 			throw new SettingsException("Value of settings parameter '" . self::SET_KEY_INCLUDE_TYPE . "' is not valid.");
 		}
