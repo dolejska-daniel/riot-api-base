@@ -35,5 +35,5 @@ interface IApiObjectExtension
 	 * @param IApiObject $apiObject The extended object (eg. SummonerDto, etc.)
 	 * @param BaseAPI    $api       The library instance
 	 */
-	public function __construct(IApiObject &$apiObject, BaseAPI &$api);
+	public function __construct(IApiObject $apiObject, BaseAPI $api);
 }
