@@ -51,9 +51,6 @@ abstract class ApiObject implements IApiObject
 		$iterableProp = $selfRef->hasProperty('_iterable')
 			? self::getIterablePropertyName($selfRef->getDocComment())
 			: false;
-		$linkableProp = $selfRef->hasProperty('staticData')
-			? self::getLinkablePropertyData($selfRef->getDocComment())
-			: [ 'function' => false, 'parameter' => false ];
 
 		foreach ($data as $property => $value)
 		{

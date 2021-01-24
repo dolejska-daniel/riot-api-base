@@ -71,7 +71,7 @@ class MethodDescriptor
 		preg_match('/^([\S\s]+?)\*\s+(@|\*\/)/', $docComment, $matches);
 		$desc = trim(@$matches[1] ?: "");
 		$desc = trim(@$desc, "*/");
-		$this->description = Strings::replace($desc, '/(\s*\n\s|\s\*\s)/');
+		$this->description = preg_replace('/(\s*\n\s|\s\*\s)/', "", $desc);
 	}
 
 	/**
