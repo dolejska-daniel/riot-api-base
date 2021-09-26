@@ -1075,11 +1075,11 @@ abstract class BaseAPI
 			throw new RequestException("LeagueAPI: Request could not be sent - {$ex->getMessage()}", $ex->getCode(), $ex);
 		});
 
-		if ($this->next_async_request)
-			return $requestPromise;
-
 		if ($overrideRegion)
 			$this->unsetTemporaryRegion();
+
+		if ($this->next_async_request)
+			return $requestPromise;
 
 		$this->query_data = [];
 		$this->post_data  = null;
