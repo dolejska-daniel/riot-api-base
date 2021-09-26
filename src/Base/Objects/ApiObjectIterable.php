@@ -19,12 +19,14 @@
 
 namespace RiotAPI\Base\Objects;
 
+use Iterator;
+
 /**
  *   Class ApiObjectIterable
  *
  * @package RiotAPI\LeagueAPI\Objects
  */
-abstract class ApiObjectIterable extends ApiObject implements \Iterator
+abstract class ApiObjectIterable extends ApiObject implements Iterator
 {
 	/**
 	 * @var array
@@ -52,7 +54,7 @@ abstract class ApiObjectIterable extends ApiObject implements \Iterator
 		return next($this->_iterable);
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		return ($this->key() !== null && $this->key() !== false);
 	}

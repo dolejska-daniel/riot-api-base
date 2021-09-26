@@ -43,8 +43,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Exception as GuzzleHttpExceptions;
-use function GuzzleHttp\Promise\settle;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -307,7 +307,7 @@ abstract class BaseAPI
 		$this->_setupAfterCalls();
 
 		//  Sets platform based on current region
-		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($this->getSetting(self::SET_REGION)));
+		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformNameOfRegion($this->getSetting(self::SET_REGION)));
 	}
 
 	/**
@@ -669,10 +669,10 @@ abstract class BaseAPI
 	 * @param string $name
 	 * @param mixed  $value
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 * @throws SettingsException
 	 */
-	public function setSetting(string $name, $value): self
+	public function setSetting(string $name, $value)
 	{
 		if (in_array($name, self::SETTINGS_INIT_ONLY + $this::SETTINGS_INIT_ONLY))
 			throw new SettingsException("Settings option '$name' can only be set on initialization of the library.");
@@ -686,10 +686,10 @@ abstract class BaseAPI
 	 *
 	 * @param array $values
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 * @throws SettingsException
 	 */
-	public function setSettings(array $values): self
+	public function setSettings(array $values)
 	{
 		foreach ($values as $name => $value)
 			$this->setSetting($name, $value);
@@ -714,14 +714,14 @@ abstract class BaseAPI
 	 *
 	 * @param string $region
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setRegion(string $region): self
+	public function setRegion(string $region)
 	{
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($region));
-		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($region));
+		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformNameOfRegion($region));
 		return $this;
 	}
 
@@ -730,32 +730,32 @@ abstract class BaseAPI
 	 *
 	 * @param string $tempRegion
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setTemporaryRegion(string $tempRegion): self
+	public function setTemporaryRegion(string $tempRegion)
 	{
 		$this->setSetting(self::SET_ORIG_REGION, $this->getSetting(self::SET_REGION));
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($tempRegion));
-		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($tempRegion));
+		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformNameOfRegion($tempRegion));
 		return $this;
 	}
 
 	/**
 	 *   Unets temporary region and returns original region.
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function unsetTemporaryRegion(): self
+	public function unsetTemporaryRegion()
 	{
 		if ($this->isSettingSet(self::SET_ORIG_REGION))
 		{
 			$region = $this->getSetting(self::SET_ORIG_REGION);
 			$this->setSetting(self::SET_REGION, $region);
-			$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformName($region));
+			$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformNameOfRegion($region));
 			$this->setSetting(self::SET_ORIG_REGION, null);
 		}
 		return $this;
@@ -774,7 +774,7 @@ abstract class BaseAPI
 	public function setTemporaryContinentRegionForPlatform(string $platform)
 	{
 		$current_platform = $this->getSetting(self::SET_PLATFORM);
-		$continent_region = $this->platforms->getContinentRegion($current_platform);
+		$continent_region = $this->platforms->getCorrespondingContinentRegion($current_platform);
 		$this->setTemporaryRegion($continent_region);
 	}
 
@@ -783,9 +783,9 @@ abstract class BaseAPI
 	 *
 	 * @param string $keyType
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	protected function useKey(string $keyType): self
+	protected function useKey(string $keyType)
 	{
 		$this->used_key = $this->isSettingSet($keyType) ? $keyType : self::SET_KEY;
 		return $this;
@@ -796,9 +796,9 @@ abstract class BaseAPI
 	 *
 	 * @param string $endpoint
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	protected function setEndpoint(string $endpoint): self
+	protected function setEndpoint(string $endpoint)
 	{
 		$this->endpoint = $endpoint;
 		return $this;
@@ -810,9 +810,9 @@ abstract class BaseAPI
 	 * @param string $resource
 	 * @param string $endpoint
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	protected function setResource(string $resource, string $endpoint): self
+	protected function setResource(string $resource, string $endpoint)
 	{
 		$this->resource = $resource;
 		$this->resource_endpoint = $endpoint;
@@ -845,9 +845,9 @@ abstract class BaseAPI
 	 * @param string      $name
 	 * @param string|null $value
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	protected function addQuery(string $name, $value): self
+	protected function addQuery(string $name, $value)
 	{
 		if (!is_null($value))
 		{
@@ -862,9 +862,9 @@ abstract class BaseAPI
 	 *
 	 * @param string $data
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	protected function setData(string $data): self
+	protected function setData(string $data)
 	{
 		$this->post_data = $data;
 		return $this;
@@ -908,9 +908,9 @@ abstract class BaseAPI
 	 * @param callable|null $onRejected
 	 * @param string        $group
 	 *
-	 * @return LeagueAPI
+	 * @return $this
 	 */
-	public function nextAsync(callable $onFulfilled = null, callable $onRejected = null, string $group = "default"): self
+	public function nextAsync(callable $onFulfilled = null, callable $onRejected = null, string $group = "default")
 	{
 		$client = @$this->async_clients[$group];
 		if (!$client)
@@ -933,7 +933,7 @@ abstract class BaseAPI
 		/** @var AsyncRequest[] $requests */
 		$requests = @$this->async_requests[$group] ?: [];
 		$promises = array_map(function ($r) { return $r->getPromise(); }, $requests);
-		settle($promises)->wait();
+		Utils::settle($promises);
 
 		unset($this->async_clients[$group]);
 		unset($this->async_requests[$group]);
@@ -1034,11 +1034,7 @@ abstract class BaseAPI
 				$options[RequestOptions::DEBUG] = fopen('php://stderr', 'w');
 
 			// Create HTTP request
-			$requestPromise = $guzzle->requestAsync(
-				$method,
-				$url,
-				$options
-			);
+			$requestPromise = $guzzle->requestAsync($method, $url, $options);
 
 			$dummyData_file = $this->_getDummyDataFileName();
 			$requestPromise = $requestPromise->then(function(ResponseInterface $response) use ($url, $requestHash, $dummyData_file) {
@@ -1234,7 +1230,7 @@ abstract class BaseAPI
 		//  TODO: move logic to Guzzle?
 		$requestHeaders = [];
 		//  Platform against which will call be made
-		$url_platformPart = $this->platforms->getPlatformName($this->getSetting(self::SET_REGION));
+		$url_platformPart = $this->platforms->getPlatformNameOfRegion($this->getSetting(self::SET_REGION));
 
 		//  API base url
 		$url_basePart = $this->getSetting(self::SET_API_BASEURL);

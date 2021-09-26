@@ -62,9 +62,9 @@ class AsyncRequest
 	 *
 	 * @param PromiseInterface $promise
 	 *
-	 * @return AsyncRequest
+	 * @return $this
 	 */
-	public function setPromise(PromiseInterface $promise): self
+	public function setPromise(PromiseInterface $promise)
 	{
 		$this->promise = $promise;
 		$promise->then($this->onFulfilled, $this->onRejected);

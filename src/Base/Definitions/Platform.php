@@ -66,6 +66,12 @@ class Platform implements IPlatform
 		Region::ASIA            => self::ASIA,
 	);
 
+	public static $continentalRegions = [
+		self::AMERICAS,
+		self::EUROPE,
+		self::ASIA,
+	];
+
 
 	// ==================================================================dd=
 	//     Control functions
@@ -76,7 +82,7 @@ class Platform implements IPlatform
 		return $this::$list;
 	}
 
-	public function getPlatformName($region): string
+	public function getPlatformNameOfRegion($region): string
 	{
 		if (!isset($this::$list[$region]))
 			throw new GeneralException('Invalid region provided. Can not find requested platform.');
@@ -84,9 +90,9 @@ class Platform implements IPlatform
 		return $this::$list[$region];
 	}
 
-	public function getContinentRegion($platform): string
+	public function getCorrespondingContinentRegion($region): string
 	{
-		switch ($this->getPlatformName($platform))
+		switch ($this->getPlatformNameOfRegion($region))
 		{
 			case Platform::EUROPE_WEST:
 			case Platform::EUROPE_EAST:
@@ -106,7 +112,7 @@ class Platform implements IPlatform
 				return Region::ASIA;
 
 			default:
-				throw new GeneralException("Unable to convert provided platform ID to corresponding continent region.");
+				throw new GeneralException("Unable to convert '$region' platform ID to corresponding continent region.");
 		}
 	}
 }
