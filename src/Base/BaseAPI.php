@@ -385,6 +385,9 @@ abstract class BaseAPI
 	{
 		try
 		{
+			if (is_object($cacheProviderClass) && $cacheProviderClass instanceof CacheItemPoolInterface) {
+				return $cacheProviderClass;
+			}
 			//  Creates reflection of specified cache provider (can be user-made)
 			$cacheProvider = new \ReflectionClass($cacheProviderClass);
 			//  Checks if this cache provider implements required interface
