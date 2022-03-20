@@ -192,7 +192,7 @@ abstract class BaseAPI
 
 	protected array $query_data = [];
 	protected string|null $post_data = null;
-	protected array $result_data = [];
+	protected mixed $result_data = null;
 	protected string $result_data_raw;
 	protected array $result_headers;
 	protected int $result_code;
@@ -310,6 +310,7 @@ abstract class BaseAPI
 	 *   Initializes library cache provider.
 	 *
 	 * @throws SettingsException
+	 * @throws InvalidArgumentException
 	 */
 	protected function _setupCacheProvider()
 	{
@@ -822,9 +823,9 @@ abstract class BaseAPI
 	/**
 	 *   Returns raw getResult data from the last call.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function getResult(): array
+	public function getResult(): mixed
 	{
 		return $this->result_data;
 	}
