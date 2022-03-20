@@ -61,7 +61,7 @@ abstract class ApiObject implements IApiObject
 				{
 					//  Object has required property, time to discover if it's
 					$dataType = self::getPropertyDataType($propRef->getDocComment());
-					if ($dataType !== false && is_array($value))
+					if ($dataType != false && is_array($value))
 					{
 						//  Property is special DataType
 						$newRef = new ReflectionClass("$namespace\\$dataType->class");
