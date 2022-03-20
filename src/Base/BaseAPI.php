@@ -188,10 +188,10 @@ abstract class BaseAPI
 	protected Client $guzzle;
 	protected array $async_clients = [];
 	protected array $async_requests = [];
-	protected ?AsyncRequest $next_async_request;
+	protected ?AsyncRequest $next_async_request = null;
 
 	protected array $query_data = [];
-	protected array|null $post_data = null;
+	protected string|null $post_data = null;
 	protected array $result_data = [];
 	protected string $result_data_raw;
 	protected array $result_headers;
@@ -809,11 +809,11 @@ abstract class BaseAPI
 	/**
 	 *   Sets POST/PUT data.
 	 *
-	 * @param array $data
+	 * @param string $data
 	 *
 	 * @return $this
 	 */
-	protected function setData(array $data): static
+	protected function setData(string $data): static
 	{
 		$this->post_data = $data;
 		return $this;
