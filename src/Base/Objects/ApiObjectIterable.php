@@ -35,24 +35,24 @@ abstract class ApiObjectIterable extends ApiObject implements Iterator
 	 */
 	protected $_iterable = [];
 
-	public function rewind()
+	public function rewind(): void
 	{
 		reset($this->_iterable);
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		return current($this->_iterable);
 	}
 
-	public function key()
+	public function key(): string|int|null
 	{
 		return key($this->_iterable);
 	}
 
-	public function next()
+	public function next(): void
 	{
-		return next($this->_iterable);
+		next($this->_iterable);
 	}
 
 	#[Pure] public function valid(): bool
