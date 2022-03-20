@@ -20,6 +20,7 @@
 namespace RiotAPI\Base\Objects;
 
 use Iterator;
+use JetBrains\PhpStorm\Pure;
 
 /**
  *   Class ApiObjectIterable
@@ -54,7 +55,7 @@ abstract class ApiObjectIterable extends ApiObject implements Iterator
 		return next($this->_iterable);
 	}
 
-	public function valid(): bool
+	#[Pure] public function valid(): bool
 	{
 		return ($this->key() !== null && $this->key() !== false);
 	}

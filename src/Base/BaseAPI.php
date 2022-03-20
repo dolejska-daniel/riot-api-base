@@ -19,6 +19,10 @@
 
 namespace RiotAPI\Base;
 
+use Exception;
+use Psr\Cache\InvalidArgumentException;
+use ReflectionClass;
+use ReflectionException;
 use RiotAPI\Base\Definitions\AsyncRequest;
 use RiotAPI\Base\Definitions\CallCacheControl;
 use RiotAPI\Base\Definitions\ICallCacheControl;
@@ -49,6 +53,7 @@ use GuzzleHttp\Exception as GuzzleHttpExceptions;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Throwable;
 
 /**
  *   Class BaseAPI
@@ -150,19 +155,11 @@ abstract class BaseAPI
 			self::SET_CACHE_PROVIDER_PARAMS,
 		];
 
-	/**
-	 *   Available resource list.
-	 *
-	 * @var array $resources
-	 */
-	protected $resources = [];
+	/** Available resource list. */
+	protected array $resources = [];
 
-	/**
-	 *   Contains current settings.
-	 *
-	 * @var array $settings
-	 */
-	protected $settings = array(
+	/** Contains current settings. */
+	protected array $settings = array(
 		self::SET_API_BASEURL       => '.api.riotgames.com',
 		self::SET_KEY_INCLUDE_TYPE  => self::KEY_AS_HEADER,
 		self::SET_USE_DUMMY_DATA    => false,
@@ -173,100 +170,52 @@ abstract class BaseAPI
 		self::SET_GUZZLE_REQ_CFG    => [],
 	);
 
-	/** @var IRegion $regions */
-	public $regions;
+	public IRegion $regions;
+	public IPlatform $platforms;
 
-	/** @var IPlatform $platforms */
-	public $platforms;
+	protected ?CacheItemPoolInterface $cache = null;
+	protected ?IRateLimitControl $rlc = null;
+	protected int $rlc_savetime = 3600;
+	protected ?ICallCacheControl $ccc = null;
+	protected int $ccc_savetime = 60;
 
+	protected string $used_key = self::SET_KEY;
+	protected string $used_method;
+	protected string $endpoint;
+	protected string $resource;
+	protected string $resource_endpoint;
 
-	/** @var CacheItemPoolInterface $cache */
-	protected $cache;
+	protected Client $guzzle;
+	protected array $async_clients = [];
+	protected array $async_requests = [];
+	protected ?AsyncRequest $next_async_request;
 
-
-	/** @var IRateLimitControl $rlc */
-	protected $rlc;
-
-	/** @var int $rlc_savetime */
-	protected $rlc_savetime = 3600;
-
-	/** @var ICallCacheControl $ccc */
-	protected $ccc;
-
-	/** @var int $ccc_savetime */
-	protected $ccc_savetime = 60;
-
-
-	/** @var string $used_key */
-	protected $used_key = self::SET_KEY;
-
-	/** @var string $used_method */
-	protected $used_method;
-
-	/** @var string $endpoint */
-	protected $endpoint;
-
-	/** @var string $resource */
-	protected $resource;
-
-	/** @var string $resource_endpoint */
-	protected $resource_endpoint;
-
-
-	/** @var Client $guzzle */
-	protected $guzzle;
-
-	/** @var Client[] $async_clients */
-	protected $async_clients = [];
-
-	/** @var AsyncRequest[] $async_requests */
-	protected $async_requests = [];
-
-	/** @var AsyncRequest $next_async_request */
-	protected $next_async_request;
-
-
-	/** @var array $query_data */
-	protected $query_data = [];
-
-	/** @var array $post_data */
-	protected $post_data = [];
-
-	/** @var array $result_data */
-	protected $result_data;
-
-	/** @var string $result_data */
-	protected $result_data_raw;
-
-	/** @var array $result_headers */
-	protected $result_headers;
-
-	/** @var int $result_code */
-	protected $result_code;
-
-	/** @var callable[] $beforeCall */
-	protected $beforeCall = [];
-
-	/** @var callable[] $afterCall */
-	protected $afterCall = [];
+	protected array $query_data = [];
+	protected array|null $post_data = null;
+	protected array $result_data = [];
+	protected string $result_data_raw;
+	protected array $result_headers;
+	protected int $result_code;
+	protected array $beforeCall = [];
+	protected array $afterCall = [];
 
 
 	/**
 	 *   BaseAPI constructor.
 	 *
-	 * @param array     $settings
-	 * @param IRegion   $custom_regionDataProvider
-	 * @param IPlatform $custom_platformDataProvider
+	 * @param array $settings
+	 * @param IRegion|null $custom_regionDataProvider
+	 * @param IPlatform|null $custom_platformDataProvider
 	 *
-	 * @throws SettingsException
 	 * @throws GeneralException
+	 * @throws SettingsException
 	 */
 	public function __construct(array $settings, IRegion $custom_regionDataProvider = null, IPlatform $custom_platformDataProvider = null)
 	{
 		//  Checks if required settings are present
 		$settings_required = array_merge(self::SETTINGS_REQUIRED, $this::SETTINGS_REQUIRED);
 		foreach ($settings_required as $key)
-			if (array_search($key, array_keys($settings), true) === false)
+			if (!in_array($key, array_keys($settings), true))
 				throw new SettingsException("Required settings parameter '$key' is missing!");
 
 		//  Assigns allowed settings
@@ -320,18 +269,18 @@ abstract class BaseAPI
 		if (!is_array($this->getSetting(self::SET_EXTENSIONS)))
 			throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid. Array expected.");
 
-		foreach ($this->getSetting(self::SET_EXTENSIONS) as $api_object => $extender)
+		foreach ($this->getSetting(self::SET_EXTENSIONS) as $extender)
 		{
 			try
 			{
-				$ref = new \ReflectionClass($extender);
+				$ref = new ReflectionClass($extender);
 				if ($ref->implementsInterface(IApiObjectExtension::class) == false)
 					throw new SettingsException("ObjectExtender '$extender' does not implement IApiObjectExtension interface.");
 
 				if ($ref->isInstantiable() == false)
 					throw new SettingsException("ObjectExtender '$extender' is not instantiable.");
 			}
-			catch (\ReflectionException $ex)
+			catch (ReflectionException $ex)
 			{
 				throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid.", 0, $ex);
 			}
@@ -385,11 +334,11 @@ abstract class BaseAPI
 	{
 		try
 		{
-			if (is_object($cacheProviderClass) && $cacheProviderClass instanceof CacheItemPoolInterface) {
+			if ($cacheProviderClass instanceof CacheItemPoolInterface) {
 				return $cacheProviderClass;
 			}
 			//  Creates reflection of specified cache provider (can be user-made)
-			$cacheProvider = new \ReflectionClass($cacheProviderClass);
+			$cacheProvider = new ReflectionClass($cacheProviderClass);
 			//  Checks if this cache provider implements required interface
 			if (!$cacheProvider->implementsInterface(CacheItemPoolInterface::class))
 				throw new SettingsException("Provided CacheProvider does not implement Psr\Cache\CacheItemPoolInterface (PSR-6)");
@@ -399,12 +348,12 @@ abstract class BaseAPI
 			$instance = $cacheProvider->newInstanceArgs($params);
 			return $instance;
 		}
-		catch (\ReflectionException $ex)
+		catch (ReflectionException $ex)
 		{
 			//  probably problem when instantiating the class
 			throw new SettingsException("Failed to initialize CacheProvider class: {$ex->getMessage()}.", $ex->getCode(), $ex);
 		}
-		catch (\Throwable $ex)
+		catch (Throwable $ex)
 		{
 			//  something went wrong when initializing the class - invalid settings, etc.
 			throw new SettingsException("CacheProvider class failed to be initialized: {$ex->getMessage()}.", $ex->getCode(), $ex);
@@ -433,11 +382,11 @@ abstract class BaseAPI
 			elseif (!is_integer($lengths))
 				throw new SettingsException("Value of settings parameter '" . self::SET_CACHE_CALLS_LENGTH . "' is not valid.");
 
+			$new_value = [];
+			$resources = $this->resources;
 			if (is_array($lengths))
 			{
 				//  The value is array, let's check it
-				$new_value = [];
-				$resources = $this->resources;
 				foreach ($resources as $resource)
 				{
 					if (isset($lengths[$resource]))
@@ -451,20 +400,16 @@ abstract class BaseAPI
 						$new_value[$resource] = null;
 				}
 
-				$this->setSetting(self::SET_CACHE_CALLS_LENGTH, $new_value);
 			}
 			else
 			{
 				//  The value is numeric, lets set the same limit to all resources
-				$new_value = [];
-				$resources = $this->resources;
 				$this->ccc_savetime = $lengths;
 
 				foreach ($resources as $resource)
 					$new_value[$resource] = $lengths;
-
-				$this->setSetting(self::SET_CACHE_CALLS_LENGTH, $new_value);
 			}
+			$this->setSetting(self::SET_CACHE_CALLS_LENGTH, $new_value);
 		}
 	}
 
@@ -477,7 +422,7 @@ abstract class BaseAPI
 	{
 		//  API rate limit check before call is made
 		$this->beforeCall[] = function () {
-			if ($this->getSetting(self::SET_CACHE_RATELIMIT) && $this->rlc != false)
+			if ($this->getSetting(self::SET_CACHE_RATELIMIT))
 				if ($this->rlc->canCall($this->getSetting($this->used_key), $this->getSetting(self::SET_REGION), $this->getResource(), $this->getResourceEndpoint()) == false)
 					throw new ServerLimitException('API call rate limit would be exceeded by this call.');
 		};
@@ -503,7 +448,7 @@ abstract class BaseAPI
 	protected function _setupAfterCalls()
 	{
 		$this->afterCall[] = function () {
-			if ($this->isSettingSet(self::SET_CACHE_RATELIMIT) && $this->rlc != false)
+			if ($this->isSettingSet(self::SET_CACHE_RATELIMIT))
 			{
 				//  Save ratelimits received with this request if RateLimit cache is enabled
 				$this->rlc->registerLimits($this->getSetting($this->used_key), $this->getSetting(self::SET_REGION), $this->getResourceEndpoint(), @$this->result_headers[self::HEADER_APP_RATELIMIT], @$this->result_headers[self::HEADER_METHOD_RATELIMIT]);
@@ -515,7 +460,7 @@ abstract class BaseAPI
 		//  Save result data, if CallCache is enabled and when the old result has expired
 		$this->afterCall[] = function () {
 			$requestHash = func_get_arg(2);
-			if ($this->getSetting(self::SET_CACHE_CALLS, false) && $this->ccc != false && $this->ccc->isCallCached($requestHash) == false)
+			if ($this->getSetting(self::SET_CACHE_CALLS, false) && $this->ccc->isCallCached($requestHash) == false)
 			{
 				//  Get information for how long to save the data
 				if ($timeInterval = @$this->getSetting(self::SET_CACHE_CALLS_LENGTH)[$this->getResource()])
@@ -552,6 +497,8 @@ abstract class BaseAPI
 	/**
 	 *   LeagueAPI destructor.
 	 *   Saves cache files (if needed) before destroying the object.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __destruct()
 	{
@@ -561,6 +508,7 @@ abstract class BaseAPI
 	/**
 	 *   Loads required cache objects
 	 *
+	 * @throws InvalidArgumentException
 	 * @internal
 	 */
 	protected function loadCache()
@@ -605,6 +553,8 @@ abstract class BaseAPI
 	/**
 	 *   Saves required cache objects.
 	 *
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 * @internal
 	 */
 	protected function saveCache(): bool
@@ -642,11 +592,8 @@ abstract class BaseAPI
 	 */
 	public function clearCache(): bool
 	{
-		if ($this->rlc)
-			$this->rlc->clear();
-
-		if ($this->ccc)
-			$this->ccc->clear();
+		$this->rlc?->clear();
+		$this->ccc?->clear();
 
 		return $this->cache->clear();
 	}
@@ -659,7 +606,7 @@ abstract class BaseAPI
 	 *
 	 * @return mixed
 	 */
-	public function getSetting(string $name, $defaultValue = null)
+	public function getSetting(string $name, mixed $defaultValue = null): mixed
 	{
 		return $this->isSettingSet($name)
 			? $this->settings[$name]
@@ -675,7 +622,7 @@ abstract class BaseAPI
 	 * @return $this
 	 * @throws SettingsException
 	 */
-	public function setSetting(string $name, $value)
+	public function setSetting(string $name, mixed $value): static
 	{
 		if (in_array($name, self::SETTINGS_INIT_ONLY + $this::SETTINGS_INIT_ONLY))
 			throw new SettingsException("Settings option '$name' can only be set on initialization of the library.");
@@ -692,7 +639,7 @@ abstract class BaseAPI
 	 * @return $this
 	 * @throws SettingsException
 	 */
-	public function setSettings(array $values)
+	public function setSettings(array $values): static
 	{
 		foreach ($values as $name => $value)
 			$this->setSetting($name, $value);
@@ -721,7 +668,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setRegion(string $region)
+	public function setRegion(string $region): static
 	{
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($region));
 		$this->setSetting(self::SET_PLATFORM, $this->platforms->getPlatformNameOfRegion($region));
@@ -737,7 +684,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function setTemporaryRegion(string $tempRegion)
+	public function setTemporaryRegion(string $tempRegion): static
 	{
 		$this->setSetting(self::SET_ORIG_REGION, $this->getSetting(self::SET_REGION));
 		$this->setSetting(self::SET_REGION, $this->regions->getRegionName($tempRegion));
@@ -752,7 +699,7 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws GeneralException
 	 */
-	public function unsetTemporaryRegion()
+	public function unsetTemporaryRegion(): static
 	{
 		if ($this->isSettingSet(self::SET_ORIG_REGION))
 		{
@@ -769,12 +716,11 @@ abstract class BaseAPI
 	 * The ASIA routing value serves KR and JP.
 	 * The EUROPE routing value serves EUNE, EUW, TR, and RU.
 	 *
-	 * @param string $platform
 	 *
 	 * @throws GeneralException
 	 * @throws SettingsException
 	 */
-	public function setTemporaryContinentRegionForPlatform(string $platform)
+	public function setTemporaryContinentRegionForPlatform()
 	{
 		$current_platform = $this->getSetting(self::SET_PLATFORM);
 		$continent_region = $this->platforms->getCorrespondingContinentRegion($current_platform);
@@ -788,7 +734,7 @@ abstract class BaseAPI
 	 *
 	 * @return $this
 	 */
-	protected function useKey(string $keyType)
+	protected function useKey(string $keyType): static
 	{
 		$this->used_key = $this->isSettingSet($keyType) ? $keyType : self::SET_KEY;
 		return $this;
@@ -801,7 +747,7 @@ abstract class BaseAPI
 	 *
 	 * @return $this
 	 */
-	protected function setEndpoint(string $endpoint)
+	protected function setEndpoint(string $endpoint): static
 	{
 		$this->endpoint = $endpoint;
 		return $this;
@@ -815,7 +761,7 @@ abstract class BaseAPI
 	 *
 	 * @return $this
 	 */
-	protected function setResource(string $resource, string $endpoint)
+	protected function setResource(string $resource, string $endpoint): static
 	{
 		$this->resource = $resource;
 		$this->resource_endpoint = $endpoint;
@@ -850,7 +796,7 @@ abstract class BaseAPI
 	 *
 	 * @return $this
 	 */
-	protected function addQuery(string $name, $value)
+	protected function addQuery(string $name, mixed $value): static
 	{
 		if (!is_null($value))
 		{
@@ -863,11 +809,11 @@ abstract class BaseAPI
 	/**
 	 *   Sets POST/PUT data.
 	 *
-	 * @param string $data
+	 * @param array $data
 	 *
 	 * @return $this
 	 */
-	protected function setData(string $data)
+	protected function setData(array $data): static
 	{
 		$this->post_data = $data;
 		return $this;
@@ -876,9 +822,9 @@ abstract class BaseAPI
 	/**
 	 *   Returns raw getResult data from the last call.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
-	public function getResult()
+	public function getResult(): array
 	{
 		return $this->result_data;
 	}
@@ -888,7 +834,7 @@ abstract class BaseAPI
 	 *
 	 * @return array
 	 */
-	public function getResultHeaders()
+	public function getResultHeaders(): array
 	{
 		return $this->result_headers;
 	}
@@ -898,7 +844,7 @@ abstract class BaseAPI
 	 *
 	 * @return array
 	 */
-	public function getCurrentLimits()
+	public function getCurrentLimits(): array
 	{
 		return $this->rlc->getCurrentStatus($this->getSetting($this->used_key), $this->getSetting(self::SET_REGION), $this->getResourceEndpoint());
 	}
@@ -913,7 +859,7 @@ abstract class BaseAPI
 	 *
 	 * @return $this
 	 */
-	public function nextAsync(callable $onFulfilled = null, callable $onRejected = null, string $group = "default")
+	public function nextAsync(callable $onFulfilled = null, callable $onRejected = null, string $group = "default"): static
 	{
 		$client = @$this->async_clients[$group];
 		if (!$client)
@@ -943,12 +889,11 @@ abstract class BaseAPI
 	}
 
 	/**
-	 * @internal
-	 *
 	 * @param PromiseInterface $promise
-	 * @param callable         $resultCallback
+	 * @param callable|null $resultCallback
 	 *
 	 * @return null
+	 * @internal
 	 */
 	function resolveOrEnqueuePromise(PromiseInterface $promise, callable $resultCallback = null)
 	{
@@ -1012,7 +957,7 @@ abstract class BaseAPI
 			}
 		}
 
-		if (!$requestPromise && $this->getSetting(self::SET_CACHE_CALLS) && $this->ccc && $this->ccc->isCallCached($requestHash))
+		if (!$requestPromise && $this->getSetting(self::SET_CACHE_CALLS) && $this->ccc->isCallCached($requestHash))
 		{
 			// calls are cached and this request is saved in cache
 			$this->processCallResult([], $this->ccc->loadCallData($requestHash), 200);
@@ -1048,10 +993,12 @@ abstract class BaseAPI
 		}
 
 		// If request fails, try to process it and raise exceptions
-		$requestPromise = $requestPromise->otherwise(function($ex) {
-			/** @var \Exception $ex */
-
-			if ($ex instanceof GuzzleHttpExceptions\RequestException)
+		$requestPromise = $requestPromise->otherwise(function(Exception $ex) {
+			if ($ex instanceof GuzzleHttpExceptions\ServerException)
+			{
+				throw new ServerException("LeagueAPI: Server error occured - {$ex->getMessage()}", $ex->getCode(), $ex);
+			}
+			elseif ($ex instanceof GuzzleHttpExceptions\RequestException)
 			{
 				$responseHeaders = [];
 				$responseBody    = null;
@@ -1065,10 +1012,6 @@ abstract class BaseAPI
 
 				$this->processCallResult($responseHeaders, $responseBody, $responseCode);
 				throw new RequestException("LeagueAPI: Request error occured - {$ex->getMessage()}", $ex->getCode(), $ex);
-			}
-			elseif ($ex instanceof GuzzleHttpExceptions\ServerException)
-			{
-				throw new ServerException("LeagueAPI: Server error occured - {$ex->getMessage()}", $ex->getCode(), $ex);
 			}
 
 			throw new RequestException("LeagueAPI: Request could not be sent - {$ex->getMessage()}", $ex->getCode(), $ex);
@@ -1087,15 +1030,19 @@ abstract class BaseAPI
 	}
 
 	/**
-	 * @internal
-	 *
-	 * @param array $response_headers
-	 * @param string $response_body
+	 * @param array|null $response_headers
+	 * @param string|null $response_body
 	 * @param int $response_code
 	 *
+	 * @throws DataNotFoundException
+	 * @throws ForbiddenException
 	 * @throws RequestException
 	 * @throws ServerException
 	 * @throws ServerLimitException
+	 * @throws UnauthorizedException
+	 * @throws UnsupportedMediaTypeException
+	 * @internal
+	 *
 	 */
 	protected function processCallResult(array $response_headers = null, string $response_body = null, int $response_code = 0)
 	{
@@ -1134,9 +1081,9 @@ abstract class BaseAPI
 				throw new RequestException("LeagueAPI: Request is invalid. $message", $response_code);
 			default:
 				if ($response_code >= 500)
-					throw new ServerException("LeagueAPI: Unspecified error occured ({$response_code}). $message", $response_code);
+					throw new ServerException("LeagueAPI: Unspecified error occured ($response_code). $message", $response_code);
 				if ($response_code >= 400)
-					throw new RequestException("LeagueAPI: Unspecified error occured ({$response_code}). $message", $response_code);
+					throw new RequestException("LeagueAPI: Unspecified error occured ($response_code). $message", $response_code);
 		}
 	}
 
@@ -1218,17 +1165,17 @@ abstract class BaseAPI
 	}
 
 	/**
-	 * @internal
-	 *
-	 *   Builds API call URL based on current settings.
-	 *
 	 * @param array $requestHeaders
 	 *
 	 * @return string
 	 *
 	 * @throws GeneralException
+		  *@internal
+	 *
+	 *   Builds API call URL based on current settings.
+	 *
 	 */
-	public function _getCallUrl(&$requestHeaders = []): string
+	public function _getCallUrl(array &$requestHeaders = []): string
 	{
 		//  TODO: move logic to Guzzle?
 		$requestHeaders = [];
@@ -1312,7 +1259,7 @@ abstract class BaseAPI
 	 * @throws ServerLimitException
 	 * @throws GeneralException
 	 */
-	public function makeTestEndpointCall($specs, string $region = null, string $method = null)
+	public function makeTestEndpointCall($specs, string $region = null, string $method = null): mixed
 	{
 		$resultPromise = $this->setEndpoint("/lol/test-endpoint/v0/{$specs}")
 			->setResource("v0", "/lol/test-endpoint/v0/%s")

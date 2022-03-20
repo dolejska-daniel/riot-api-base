@@ -27,8 +27,7 @@ namespace RiotAPI\Base\Definitions;
  */
 class CallCacheControl implements ICallCacheControl
 {
-	/** @var array $storage */
-	protected $storage;
+	protected CallCacheStorage $storage;
 
 	/**
 	 *   CallCacheControl constructor.
@@ -67,7 +66,7 @@ class CallCacheControl implements ICallCacheControl
 	 *
 	 * @return mixed
 	 */
-	public function loadCallData( string $hash )
+	public function loadCallData( string $hash ): mixed
 	{
 		return $this->storage->load($hash);
 	}
