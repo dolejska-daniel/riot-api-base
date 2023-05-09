@@ -44,6 +44,7 @@ class Region implements IRegion
 	const OCEANIA = 'oce';
 	const KOREA = 'kr';
 	const JAPAN = 'jp';
+	const TAIWAN = 'tw';
 
 	public static $list = array(
 		self::NORTH_AMERICA   => self::NORTH_AMERICA,
@@ -59,6 +60,7 @@ class Region implements IRegion
 		self::ASIA            => self::ASIA,
 		self::KOREA           => self::KOREA,
 		self::JAPAN           => self::JAPAN,
+		self::TAIWAN          => self::TAIWAN,
 		self::AMERICAS        => self::AMERICAS,
 	);
 

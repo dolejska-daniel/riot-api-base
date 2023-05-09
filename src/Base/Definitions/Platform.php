@@ -44,6 +44,7 @@ class Platform implements IPlatform
 	const OCEANIA = 'oc1';
 	const KOREA = 'kr';
 	const JAPAN = 'jp1';
+	const TAIWAN = 'tw2';
 
 	const AMERICAS = 'americas';
 	const EUROPE = 'europe';
@@ -62,6 +63,7 @@ class Platform implements IPlatform
 		Region::OCEANIA         => self::OCEANIA,
 		Region::KOREA           => self::KOREA,
 		Region::JAPAN           => self::JAPAN,
+		Region::TAIWAN           => self::TAIWAN,
 		Region::AMERICAS        => self::AMERICAS,
 		Region::ASIA            => self::ASIA,
 	);
@@ -109,6 +111,7 @@ class Platform implements IPlatform
 
 			case Platform::KOREA:
 			case Platform::JAPAN:
+			case Platform::TAIWAN:
 				return Region::ASIA;
 
 			default:
