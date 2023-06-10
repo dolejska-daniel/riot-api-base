@@ -78,13 +78,13 @@ abstract class BaseAPI
 		SET_REGION                   = 'SET_REGION',
 		SET_ORIG_REGION              = 'SET_ORIG_REGION',
 		SET_PLATFORM                 = 'SET_PLATFORM',              /** Set internally by setting region **/
-		SET_VERIFY_SSL               = 'SET_VERIFY_SSL',            /** Specifies whether or not to verify SSL (verification often fails on localhost) **/
+		SET_VERIFY_SSL               = 'SET_VERIFY_SSL',            /** Specifies whether to verify SSL (verification often fails on localhost) **/
 		SET_KEY                      = 'SET_KEY',                   /** API key used by default **/
 		SET_KEY_INCLUDE_TYPE         = 'SET_KEY_INCLUDE_TYPE',      /** API key request include type (header, query) **/
 		SET_CACHE_PROVIDER           = 'SET_CACHE_PROVIDER',        /** Specifies CacheProvider class name **/
 		SET_CACHE_PROVIDER_PARAMS    = 'SET_CACHE_PROVIDER_PARAMS', /** Specifies parameters passed to CacheProvider class when initializing **/
-		SET_CACHE_RATELIMIT          = 'SET_CACHE_RATELIMIT',       /** Used to set whether or not to saveCallData and check API key's rate limit **/
-		SET_CACHE_CALLS              = 'SET_CACHE_CALLS',           /** Used to set whether or not to temporary saveCallData API call's results **/
+		SET_CACHE_RATELIMIT          = 'SET_CACHE_RATELIMIT',       /** Used to set whether to saveCallData and check API key's rate limit **/
+		SET_CACHE_CALLS              = 'SET_CACHE_CALLS',           /** Used to set whether to temporary saveCallData API call's results **/
 		SET_CACHE_CALLS_LENGTH       = 'SET_CACHE_CALLS_LENGTH',    /** Specifies for how long are call results saved **/
 		SET_EXTENSIONS               = 'SET_EXTENSIONS',            /** Specifies ApiObject's extensions **/
 		SET_GUZZLE_CLIENT_CFG        = 'SET_GUZZLE_CLIENT_CFG',     /** Specifies configuration passed to Guzzle library client. */
@@ -209,7 +209,8 @@ abstract class BaseAPI
 	 *
 	 * @throws GeneralException
 	 * @throws SettingsException
-	 */
+     * @throws InvalidArgumentException
+     */
 	public function __construct(array $settings, IRegion $custom_regionDataProvider = null, IPlatform $custom_platformDataProvider = null)
 	{
 		//  Checks if required settings are present
@@ -264,8 +265,8 @@ abstract class BaseAPI
 	 *
 	 * @throws SettingsException
 	 */
-	protected function _setupExtensions()
-	{
+	protected function _setupExtensions(): void
+    {
 		if (!is_array($this->getSetting(self::SET_EXTENSIONS)))
 			throw new SettingsException("Value of settings parameter '" . self::SET_EXTENSIONS . "' is not valid. Array expected.");
 
@@ -287,8 +288,8 @@ abstract class BaseAPI
 		}
 	}
 
-	protected function _setupDefaultCacheProviderSettings()
-	{
+	protected function _setupDefaultCacheProviderSettings(): void
+    {
 		//  If something should be cached
 		if (!$this->isSettingSet(self::SET_CACHE_PROVIDER))
 		{
@@ -312,8 +313,8 @@ abstract class BaseAPI
 	 * @throws SettingsException
 	 * @throws InvalidArgumentException
 	 */
-	protected function _setupCacheProvider()
-	{
+	protected function _setupCacheProvider(): void
+    {
 		$this->cache = $this->_initializeCacheProvider(
 			$this->getSetting(self::SET_CACHE_PROVIDER),
 			$this->getSetting(self::SET_CACHE_PROVIDER_PARAMS, [])
@@ -366,8 +367,8 @@ abstract class BaseAPI
 	 *
 	 * @throws SettingsException
 	 */
-	public function _setupCacheCalls()
-	{
+	public function _setupCacheCalls(): void
+    {
 		if ($this->isSettingSet(self::SET_CACHE_CALLS_LENGTH))
 		{
 			$lengths = $this->getSetting(self::SET_CACHE_CALLS_LENGTH);
@@ -419,8 +420,8 @@ abstract class BaseAPI
 	 *
 	 * @throws SettingsException
 	 */
-	protected function _setupBeforeCalls()
-	{
+	protected function _setupBeforeCalls(): void
+    {
 		//  API rate limit check before call is made
 		$this->beforeCall[] = function () {
 			if ($this->getSetting(self::SET_CACHE_RATELIMIT))
@@ -446,8 +447,8 @@ abstract class BaseAPI
 	 *
 	 * @throws SettingsException
 	 */
-	protected function _setupAfterCalls()
-	{
+	protected function _setupAfterCalls(): void
+    {
 		$this->afterCall[] = function () {
 			if ($this->isSettingSet(self::SET_CACHE_RATELIMIT))
 			{
@@ -512,8 +513,8 @@ abstract class BaseAPI
 	 * @throws InvalidArgumentException
 	 * @internal
 	 */
-	protected function loadCache()
-	{
+	protected function loadCache(): void
+    {
 		if ($this->getSetting(self::SET_CACHE_RATELIMIT, false))
 		{
 			//  ratelimit cache enabled, try to load already existing object
@@ -721,8 +722,8 @@ abstract class BaseAPI
 	 * @throws GeneralException
 	 * @throws SettingsException
 	 */
-	public function setTemporaryContinentRegionForPlatform()
-	{
+	public function setTemporaryContinentRegionForPlatform(): void
+    {
 		$current_platform = $this->getSetting(self::SET_PLATFORM);
 		$continent_region = $this->platforms->getCorrespondingContinentRegion($current_platform);
 		$this->setTemporaryRegion($continent_region);
@@ -878,8 +879,8 @@ abstract class BaseAPI
 	 *
 	 * @param string $group
 	 */
-	public function commitAsync(string $group = "default")
-	{
+	public function commitAsync(string $group = "default"): void
+    {
 		/** @var AsyncRequest[] $requests */
 		$requests = @$this->async_requests[$group] ?: [];
 		$promises = array_map(function ($r) { return $r->getPromise(); }, $requests);
@@ -1045,8 +1046,8 @@ abstract class BaseAPI
 	 * @internal
 	 *
 	 */
-	protected function processCallResult(array $response_headers = null, string $response_body = null, int $response_code = 0)
-	{
+	protected function processCallResult(array $response_headers = null, string $response_body = null, int $response_code = 0): void
+    {
 		// flatten response headers array from Guzzle
 		array_walk($response_headers, function ( &$value ) {
 			if (is_array($value) && count($value) == 1)
@@ -1099,8 +1100,8 @@ abstract class BaseAPI
 	 *
 	 * @throws RequestException
 	 */
-	public function _loadDummyData(&$headers, &$response, &$response_code)
-	{
+	public function _loadDummyData(&$headers, &$response, &$response_code): void
+    {
 		$data = @file_get_contents($this->_getDummyDataFileName());
 		$data = @unserialize($data);
 		if (!$data)
@@ -1118,8 +1119,8 @@ abstract class BaseAPI
 	 *
 	 * @param string|null $dummyData_file
 	 */
-	public function _saveDummyData(string $dummyData_file = null)
-	{
+	public function _saveDummyData(string $dummyData_file = null): void
+    {
 		file_put_contents($dummyData_file ?: $this->_getDummyDataFileName(), serialize([
 			'headers'  => $this->result_headers,
 			'response' => $this->result_data_raw,
@@ -1137,8 +1138,8 @@ abstract class BaseAPI
 	 *
 	 * @throws RequestException
 	 */
-	protected function _beforeCall(string $url, string $requestHash)
-	{
+	protected function _beforeCall(string $url, string $requestHash): void
+    {
 		foreach ($this->beforeCall as $function)
 		{
 			if ($function($this, $url, $requestHash) === false)
@@ -1157,8 +1158,8 @@ abstract class BaseAPI
 	 * @param string $requestHash
 	 * @param string $dummyData_file
 	 */
-	protected function _afterCall(string $url, string $requestHash, string $dummyData_file)
-	{
+	protected function _afterCall(string $url, string $requestHash, string $dummyData_file): void
+    {
 		foreach ($this->afterCall as $function)
 		{
 			$function($this, $url, $requestHash, $dummyData_file);
@@ -1262,7 +1263,7 @@ abstract class BaseAPI
 	 */
 	public function makeTestEndpointCall($specs, string $region = null, string $method = null): mixed
 	{
-		$resultPromise = $this->setEndpoint("/lol/test-endpoint/v0/{$specs}")
+		$resultPromise = $this->setEndpoint("/lol/test-endpoint/v0/$specs")
 			->setResource("v0", "/lol/test-endpoint/v0/%s")
 			->makeCall($region ?: null, $method ?: self::METHOD_GET);
 
