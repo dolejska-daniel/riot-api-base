@@ -85,7 +85,7 @@ class CallbackFunctionsTest extends TestCase
 	}
 
 
-	public function dataProvider_invalid_callbacks()
+	public static function dataProvider_invalid_callbacks()
 	{
 		return [
 			[
