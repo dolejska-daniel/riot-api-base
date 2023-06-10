@@ -19,15 +19,12 @@
 
 namespace RiotAPI\Base\Objects;
 
-use phpDocumentor\Reflection\Types\Iterable_;
-use stdClass;
 use Exception;
-
 use ReflectionClass;
 use ReflectionException;
-
 use RiotAPI\Base\BaseAPI;
 use RiotAPI\Base\Exceptions\GeneralException;
+use stdClass;
 
 
 /**
@@ -60,7 +57,7 @@ abstract class ApiObject implements IApiObject
 				if ($propRef = $selfRef->getProperty($property))
 				{
 					//  Object has required property, time to discover if it's
-					$dataType = self::getPropertyDataType($propRef->getDocComment());
+					$dataType = self::getPropertyDataType($propRef);
 					if ($dataType != false && is_array($value))
 					{
 						//  Property is special DataType
@@ -89,8 +86,18 @@ abstract class ApiObject implements IApiObject
 				if ($this instanceof ApiObjectIterable && $iterableProp == $property)
 					$this->_iterable = $this->$property;
 			}
-			//  If property does not exist
-			catch (ReflectionException) {}
+				//  If property does not exist
+			catch (ReflectionException $exception)
+			{
+				if (getenv("IS_UNIT_TESTING"))
+				{
+					throw new GeneralException("Failed processing property $property of $selfRef->name.", previous: $exception);
+				}
+				else
+				{
+					trigger_error($exception->getMessage(), E_USER_WARNING);
+				}
+			}
 		}
 
 		$this->_data = $data;
@@ -144,21 +151,27 @@ abstract class ApiObject implements IApiObject
 		return null;
 	}
 
-	/**
-	 *   Returns DataType specified in PHPDoc comment.
-	 *
-	 * @param string $phpDocComment
-	 *
-	 * @return stdClass|null
-	 */
-	public static function getPropertyDataType( string $phpDocComment ): ?stdClass
+    /**
+     *   Returns DataType details based on reflected property.
+     *
+     * @param \ReflectionProperty $property
+     *
+     * @return stdClass|null
+     */
+	public static function getPropertyDataType(\ReflectionProperty $property): ?stdClass
 	{
 		$o = new stdClass();
 
-		preg_match('/@var\s+(\w+)(\[])?/', $phpDocComment, $matches);
+		preg_match('/@var\s+(\w+)(\[])?/', $property->getDocComment(), $matches);
 
 		$o->class = $matches[1];
 		$o->isArray = isset($matches[2]);
+
+        if ($o->class == null)
+        {
+            $nameParts = explode("\\", $property->getType()->getName());
+            $o->class = end($nameParts);
+        }
 
 		if (in_array($o->class, [ 'integer', 'int', 'string', 'bool', 'boolean', 'double', 'float', 'array' ]))
 			return null;
