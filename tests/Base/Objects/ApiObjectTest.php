@@ -53,7 +53,7 @@ class ApiObjectTest extends RiotAPITestCase
     {
         $property = new ReflectionProperty($this, "customDataType");
         $dataType = Objects\ApiObject::getPropertyDataType($property);
-        $this->assertEquals('SpecialClass', $dataType->class);
+        $this->assertEquals('DataTransferObject', $dataType->class);
         $this->assertFalse($dataType->isArray);
     }
 
@@ -63,7 +63,7 @@ class ApiObjectTest extends RiotAPITestCase
     {
         $property = new ReflectionProperty($this, "customDataTypeWithoutComment");
         $dataType = Objects\ApiObject::getPropertyDataType($property);
-        $this->assertEquals('SpecialClass', $dataType->class);
+        $this->assertEquals('DataTransferObject', $dataType->class);
         $this->assertFalse($dataType->isArray);
     }
 
@@ -74,7 +74,7 @@ class ApiObjectTest extends RiotAPITestCase
     {
         $property = new ReflectionProperty($this, "customDataTypeArray");
         $dataType = Objects\ApiObject::getPropertyDataType($property);
-        $this->assertEquals('SpecialClass', $dataType->class);
+        $this->assertEquals('DataTransferObject', $dataType->class);
         $this->assertTrue($dataType->isArray);
     }
 
@@ -88,7 +88,7 @@ class ApiObjectTest extends RiotAPITestCase
         $this->assertNull($dataType);
     }
 
-    public function testGetData()
+    public function testInstantiate()
     {
         $array = [
             "a" => 1,
@@ -96,16 +96,35 @@ class ApiObjectTest extends RiotAPITestCase
             "c" => null,
         ];
         $obj = new DataTransferObject($array, null);
+
         $this->assertSame($array, $obj->getData());
         $this->assertEquals($obj->a, $array["a"]);
         $this->assertEquals($obj->b, $array["b"]);
         $this->assertEquals($obj->c, $array["c"]);
     }
 
-    public function testGetData_MissingProperty()
+    public function testInstantiate_Complex()
+    {
+        $array = [
+            "a" => 1,
+            "b" => "hello",
+            "c" => [
+                "a" => 2,
+                "b" => "greetings",
+            ],
+        ];
+        $obj = new DataTransferObject($array, null);
+
+        $this->assertSame($array, $obj->getData());
+        $this->assertTrue($obj->c instanceof DataTransferObject);
+        $this->assertEquals($obj->c->a, $array["c"]["a"]);
+        $this->assertEquals($obj->c->b, $array["c"]["b"]);
+    }
+
+    public function testInstantiate_MissingProperty()
     {
         $this->expectException(GeneralException::class);
-        $this->expectExceptionMessage("Failed processing property x of SpecialClass");
+        $this->expectExceptionMessage("Failed processing property x of DataTransferObject");
 
         $array = [
             "x" => 1,

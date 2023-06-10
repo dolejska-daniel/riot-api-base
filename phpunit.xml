@@ -17,6 +17,9 @@
             <directory>tests/Base/Objects/</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <env name="IS_UNIT_TESTING" value="1"/>
+    </php>
     <coverage ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="true"
     />
