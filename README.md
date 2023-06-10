@@ -1,8 +1,8 @@
 # RiotAPI PHP8 wrapper base
 > Version v2.0.0
 
-[![Build Status](https://img.shields.io/travis/dolejska-daniel/riot-api-base/master)](https://travis-ci.org/dolejska-daniel/riot-api-base)
-[![Test Coverage](https://img.shields.io/codeclimate/coverage/dolejska-daniel/riot-api-base?logo=code-climate)](https://codeclimate.com/github/dolejska-daniel/riot-api-base/coverage)
+[![example workflow](https://github.com/dolejska-daniel/riot-api-base/actions/workflows/php.yaml/badge.svg)](https://github.com/dolejska-daniel/riot-api-base/actions)
+[![Code Coverage](https://codecov.io/gh/dolejska-daniel/riot-api-base/branch/master/graph/badge.svg?token=QSQ2SSRLP9)](https://codecov.io/gh/dolejska-daniel/riot-api-base)
 [![Packagist](https://img.shields.io/packagist/l/dolejska-daniel/riot-api-base)](https://packagist.org/packages/dolejska-daniel/riot-api-base)
 ![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-base)
 [![Support Project](https://img.shields.io/badge/support_project-PayPal-blue)](https://www.paypal.me/dolejskad)
