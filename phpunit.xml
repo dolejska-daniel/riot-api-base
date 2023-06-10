@@ -13,7 +13,13 @@
         <testsuite name="BaseAPI:Definition_Tests">
             <directory>tests/Base/Definitions/</directory>
         </testsuite>
+        <testsuite name="BaseAPI:Object_Tests">
+            <directory>tests/Base/Objects/</directory>
+        </testsuite>
     </testsuites>
+    <php>
+        <env name="IS_UNIT_TESTING" value="1"/>
+    </php>
     <coverage ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="true"
     />
