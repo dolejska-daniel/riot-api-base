@@ -13,7 +13,7 @@
 		}
 	],
 	"scripts": {
-		"test": "vendor/bin/phpunit -v --bootstrap phpunit.php --configuration phpunit.xml --coverage-text --coverage-html build/coverage"
+		"test": "vendor/bin/phpunit -v --bootstrap vendor/autoload.php --configuration phpunit.xml --coverage-text --coverage-html build/coverage"
 	},
 	"require": {
 		"guzzlehttp/guzzle": "^7",
