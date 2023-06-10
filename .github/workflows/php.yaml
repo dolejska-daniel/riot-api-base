@@ -44,9 +44,8 @@ jobs:
                 env:
                     XDEBUG_MODE: coverage
                 with:
-                    bootstrap: vendor/autoload.php
                     configuration: phpunit.xml
-                    php_extensions: xdebug
+                    php_extensions: xdebug memcached
                     args: tests --coverage-clover ./coverage.xml
 
             -   name: Upload coverage reports to Codecov
