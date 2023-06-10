@@ -27,8 +27,7 @@ namespace RiotAPI\Base\Definitions;
  */
 class CallCacheStorage
 {
-	/** @var array $cache */
-	protected $cache = [];
+	protected array $cache = [];
 
 	/**
 	 *   CallCacheStorage constructor.
@@ -75,7 +74,7 @@ class CallCacheStorage
 	 *
 	 * @return mixed
 	 */
-	public function load( string $hash )
+	public function load( string $hash ): mixed
 	{
 		return $this->isCached($hash)
 			? $this->cache[$hash]['data']

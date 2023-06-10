@@ -72,6 +72,9 @@ class Region implements IRegion
 		return $this::$list;
 	}
 
+	/**
+	 * @throws GeneralException
+	 */
 	public function getRegionName($region): string
 	{
 		$region = strtolower($region);

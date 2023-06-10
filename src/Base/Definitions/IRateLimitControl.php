@@ -63,10 +63,8 @@ interface IRateLimitControl
 	 * @param string $api_key
 	 * @param string $region
 	 * @param string $endpoint
-	 * @param string $app_header
-	 * @param string $method_header
-	 *
-	 * @return
+	 * @param string|null $app_header
+	 * @param string|null $method_header
 	 */
 	public function registerLimits(string $api_key, string $region, string $endpoint, ?string $app_header, ?string $method_header);
 
@@ -76,10 +74,8 @@ interface IRateLimitControl
 	 * @param string $api_key
 	 * @param string $region
 	 * @param string $endpoint
-	 * @param string $app_header
-	 * @param string $method_header
-	 *
-	 * @return
+	 * @param string|null $app_header
+	 * @param string|null $method_header
 	 */
 	public function registerCall(string $api_key, string $region, string $endpoint, ?string $app_header, ?string $method_header);
 

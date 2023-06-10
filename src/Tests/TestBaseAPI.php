@@ -19,24 +19,26 @@
 
 namespace RiotAPI\Tests;
 
+use GuzzleHttp\Client;
 use RiotAPI\Base\BaseAPI;
+use RiotAPI\Base\Definitions\AsyncRequest;
 
 class TestBaseAPI extends BaseAPI
 {   
-	public $resources = [
+	public array $resources = [
 		"0:test",
 		"1:resource1",
 		"2:resource2"
 	];
 
-	/** @var AsyncRequest $next_async_request */
-	public $next_async_request;
+	/** @var ?AsyncRequest $next_async_request */
+	public ?AsyncRequest $next_async_request = null;
 
 	/** @var AsyncRequest[] $async_requests */
-	public $async_requests;
+	public array $async_requests = [];
 
 	/** @var Client[] $async_clients */
-    public $async_clients;
+    public array $async_clients = [];
     
 	public function getCCC()
 	{

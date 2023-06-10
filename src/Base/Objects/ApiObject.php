@@ -19,6 +19,7 @@
 
 namespace RiotAPI\Base\Objects;
 
+use phpDocumentor\Reflection\Types\Iterable_;
 use stdClass;
 use Exception;
 
@@ -26,7 +27,6 @@ use ReflectionClass;
 use ReflectionException;
 
 use RiotAPI\Base\BaseAPI;
-use RiotAPI\Base\Objects\IApiObject;
 use RiotAPI\Base\Exceptions\GeneralException;
 
 
@@ -41,14 +41,15 @@ abstract class ApiObject implements IApiObject
 	 *   ApiObject constructor.
 	 *
 	 * @param array $data
-	 * @param LeagueAPI $api
+	 * @param BaseAPI|null $api
+	 * @throws ReflectionException
 	 */
 	public function __construct(array $data, BaseAPI $api = null)
 	{
 		// Tries to assigns data to class properties
 		$selfRef = new ReflectionClass($this);
 		$namespace = $selfRef->getNamespaceName();
-		$iterableProp = $selfRef->hasProperty('_iterable')
+		$iterableProp = $this instanceof ApiObjectIterable
 			? self::getIterablePropertyName($selfRef->getDocComment())
 			: false;
 
@@ -60,7 +61,7 @@ abstract class ApiObject implements IApiObject
 				{
 					//  Object has required property, time to discover if it's
 					$dataType = self::getPropertyDataType($propRef->getDocComment());
-					if ($dataType !== false && is_array($value))
+					if ($dataType != false && is_array($value))
 					{
 						//  Property is special DataType
 						$newRef = new ReflectionClass("$namespace\\$dataType->class");
@@ -85,11 +86,11 @@ abstract class ApiObject implements IApiObject
 					}
 				}
 
-				if ($iterableProp == $property)
+				if ($this instanceof ApiObjectIterable && $iterableProp == $property)
 					$this->_iterable = $this->$property;
 			}
 			//  If property does not exist
-			catch (ReflectionException $ex) {}
+			catch (ReflectionException) {}
 		}
 
 		$this->_data = $data;
@@ -113,15 +114,15 @@ abstract class ApiObject implements IApiObject
 	 *
 	 * @param string $phpDocComment
 	 *
-	 * @return bool|string
+	 * @return string|null
 	 */
-	public static function getIterablePropertyName( string $phpDocComment )
+	public static function getIterablePropertyName( string $phpDocComment ): ?string
 	{
 		preg_match('/@iterable\s\$([\w]+)/', $phpDocComment, $matches);
 		if (isset($matches[1]))
 			return $matches[1];
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -129,9 +130,9 @@ abstract class ApiObject implements IApiObject
 	 *
 	 * @param string $phpDocComment
 	 *
-	 * @return bool|array
+	 * @return array|null
 	 */
-	public static function getLinkablePropertyData( string $phpDocComment )
+	public static function getLinkablePropertyData( string $phpDocComment ): ?array
 	{
 		preg_match('/@linkable\s(?<function>[\w]+)(?:\(\$(?<parameter>[\w]+)+?\))?/', $phpDocComment, $matches);
 
@@ -140,7 +141,7 @@ abstract class ApiObject implements IApiObject
 		if (@$matches['function'] && @$matches['parameter'])
 			return $matches;
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -148,19 +149,19 @@ abstract class ApiObject implements IApiObject
 	 *
 	 * @param string $phpDocComment
 	 *
-	 * @return bool|stdClass
+	 * @return stdClass|null
 	 */
-	public static function getPropertyDataType( string $phpDocComment )
+	public static function getPropertyDataType( string $phpDocComment ): ?stdClass
 	{
 		$o = new stdClass();
 
-		preg_match('/@var\s+(\w+)(\[\])?/', $phpDocComment, $matches);
+		preg_match('/@var\s+(\w+)(\[])?/', $phpDocComment, $matches);
 
 		$o->class = $matches[1];
 		$o->isArray = isset($matches[2]);
 
 		if (in_array($o->class, [ 'integer', 'int', 'string', 'bool', 'boolean', 'double', 'float', 'array' ]))
-			return false;
+			return null;
 
 		return $o;
 	}
@@ -172,7 +173,7 @@ abstract class ApiObject implements IApiObject
 	 * @var array
 	 * @internal
 	 */
-	protected $_data = array();
+	protected array $_data = [];
 
 	/**
 	 *   Gets all the original data fetched from LeagueAPI.
@@ -188,10 +189,10 @@ abstract class ApiObject implements IApiObject
 	/**
 	 *   Object extender.
 	 *
-	 * @var IApiObjectExtension
+	 * @var IApiObjectExtension|null
 	 * @internal
 	 */
-	protected $_extension;
+	protected ?IApiObjectExtension $_extension = null;
 
 	/**
 	 *   Magic call method used for calling ObjectExtender methods.

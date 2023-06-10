@@ -20,6 +20,8 @@
 namespace RiotAPI\Base\Definitions;
 
 
+use JetBrains\PhpStorm\ArrayShape;
+
 /**
  *   Class RateLimitControl
  *
@@ -27,8 +29,7 @@ namespace RiotAPI\Base\Definitions;
  */
 class RateLimitControl implements IRateLimitControl
 {
-	/** @var RateLimitStorage $storage */
-	protected $storage;
+	protected RateLimitStorage $storage;
 
 	/**
 	 *   RateLimitControl constructor.
@@ -59,7 +60,7 @@ class RateLimitControl implements IRateLimitControl
 	 *
 	 * @return array
 	 */
-	public function getCurrentStatus(string $api_key, string $region, string $endpoint): array
+	#[ArrayShape(["app" => "mixed", "method" => "mixed"])] public function getCurrentStatus(string $api_key, string $region, string $endpoint): array
 	{
 		return [
 			"app" => $this->storage->getAppLimits($api_key, $region),
@@ -88,8 +89,8 @@ class RateLimitControl implements IRateLimitControl
 	 * @param string $api_key
 	 * @param string $region
 	 * @param string $endpoint
-	 * @param string $app_limit_header
-	 * @param string $method_limit_header
+	 * @param string|null $app_limit_header
+	 * @param string|null $method_limit_header
 	 */
 	public function registerLimits(string $api_key, string $region, string $endpoint, ?string $app_limit_header, ?string $method_limit_header)
 	{
@@ -106,8 +107,8 @@ class RateLimitControl implements IRateLimitControl
 	 * @param string $api_key
 	 * @param string $region
 	 * @param string $endpoint
-	 * @param string $app_count_header
-	 * @param string $method_count_header
+	 * @param string|null $app_count_header
+	 * @param string|null $method_count_header
 	 */
 	public function registerCall(string $api_key, string $region, string $endpoint, ?string $app_count_header, ?string $method_count_header)
 	{
