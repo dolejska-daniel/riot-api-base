@@ -49,6 +49,7 @@ class Platform implements IPlatform
 	const AMERICAS = 'americas';
 	const EUROPE = 'europe';
 	const ASIA = 'asia';
+	const SEA = 'sea';
 
 	public static $list = array(
 		Region::NORTH_AMERICA   => self::NORTH_AMERICA,
@@ -66,12 +67,14 @@ class Platform implements IPlatform
 		Region::TAIWAN           => self::TAIWAN,
 		Region::AMERICAS        => self::AMERICAS,
 		Region::ASIA            => self::ASIA,
+		Region::SEA            => self::SEA,
 	);
 
 	public static $continentalRegions = [
 		self::AMERICAS,
 		self::EUROPE,
 		self::ASIA,
+		self::SEA,
 	];
 
 
@@ -111,8 +114,10 @@ class Platform implements IPlatform
 
 			case Platform::KOREA:
 			case Platform::JAPAN:
-			case Platform::TAIWAN:
 				return Region::ASIA;
+
+			case Platform::TAIWAN:
+				return Region::SEA;				
 
 			default:
 				throw new GeneralException("Unable to convert '$region' platform ID to corresponding continent region.");
