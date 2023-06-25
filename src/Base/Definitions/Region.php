@@ -62,6 +62,7 @@ class Region implements IRegion
 		self::JAPAN           => self::JAPAN,
 		self::TAIWAN          => self::TAIWAN,
 		self::AMERICAS        => self::AMERICAS,
+		self::SEA             => self::SEA,
 	);
 
 
