@@ -44,15 +44,22 @@ class Platform implements IPlatform
 	const OCEANIA = 'oc1';
 	const KOREA = 'kr';
 	const JAPAN = 'jp1';
+    const PHILIPPINES = 'ph2';
+    const SINGAPORE = 'sg2';
+    const TAIWAN = 'tw2';
+    const THAILAND = 'th2';
+    const VIETNAM = 'vn2';
 
 	const AMERICAS = 'americas';
 	const EUROPE = 'europe';
 	const ASIA = 'asia';
+	const SEA = 'sea';
 
 	public static $list = array(
 		IRegion::EUROPE         => self::EUROPE,
 		IRegion::AMERICAS       => self::AMERICAS,
 		IRegion::ASIA           => self::ASIA,
+		IRegion::SEA            => self::SEA,
 		Region::NORTH_AMERICA   => self::NORTH_AMERICA,
 		Region::EUROPE_WEST     => self::EUROPE_WEST,
 		Region::EUROPE_EAST     => self::EUROPE_EAST,
@@ -64,12 +71,18 @@ class Platform implements IPlatform
 		Region::OCEANIA         => self::OCEANIA,
 		Region::KOREA           => self::KOREA,
 		Region::JAPAN           => self::JAPAN,
+        Region::PHILIPPINES     => self::PHILIPPINES,
+        Region::SINGAPORE       => self::SINGAPORE,
+        Region::TAIWAN          => self::TAIWAN,
+        Region::THAILAND        => self::THAILAND,
+        Region::VIETNAM         => self::VIETNAM,
 	);
 
 	public static $continentalRegions = [
 		self::AMERICAS,
 		self::EUROPE,
 		self::ASIA,
+		self::SEA,
 	];
 
 
@@ -116,6 +129,13 @@ class Platform implements IPlatform
 			case Platform::KOREA:
 			case Platform::JAPAN:
 				return IRegion::ASIA;
+
+            case Platform::PHILIPPINES:
+            case Platform::SINGAPORE:
+            case Platform::TAIWAN:
+            case Platform::THAILAND:
+            case Platform::VIETNAM:
+                return IRegion::SEA;
 
 			default:
 				throw new GeneralException("Unable to convert '$region' platform ID to corresponding continent region.");
