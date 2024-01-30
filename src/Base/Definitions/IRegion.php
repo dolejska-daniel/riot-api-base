@@ -33,6 +33,8 @@ interface IRegion
 
 	const ASIA = 'asia';
 
+	const SEA = 'sea';
+
 	/**
 	 *   Returns region list.
 	 *
