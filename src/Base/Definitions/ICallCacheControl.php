@@ -43,7 +43,7 @@ interface ICallCacheControl
 	 *
 	 * @return mixed
 	 */
-	public function loadCallData( string $hash );
+	public function loadCallData( string $hash ): mixed;
 
 	/**
 	 *   Saves given data for call.

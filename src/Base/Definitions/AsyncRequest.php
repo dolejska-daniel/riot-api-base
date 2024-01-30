@@ -29,17 +29,14 @@ use GuzzleHttp\Promise\PromiseInterface;
  */
 class AsyncRequest
 {
-	/** @var Client $client */
-	public $client;
+	public Client $client;
+	protected ?PromiseInterface $promise = null;
 
 	/** @var callable $onFulfilled */
 	public $onFulfilled;
 
 	/** @var callable $onRejected */
 	public $onRejected;
-
-	/** @var PromiseInterface $promise */
-	protected $promise;
 
 
 	/**
@@ -64,7 +61,7 @@ class AsyncRequest
 	 *
 	 * @return $this
 	 */
-	public function setPromise(PromiseInterface $promise)
+	public function setPromise(PromiseInterface $promise): static
 	{
 		$this->promise = $promise;
 		$promise->then($this->onFulfilled, $this->onRejected);

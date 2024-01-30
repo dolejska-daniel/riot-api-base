@@ -91,10 +91,10 @@ class RiotAPITestCase extends TestCase
 				continue; // TODO: Continue?
 
 			//  For each property parse its DataType
-			$dataType = ApiObject::getPropertyDataType($propRef->getDocComment());
+			$dataType = ApiObject::getPropertyDataType($propRef);
 
 			//  Check if its data type is non-standard data type (our special object)
-			if ($dataType !== false)
+			if ($dataType != false)
 			{
 				//  This property is our special class (not int, string, bool, etc.)
 				if ($dataType->isArray)

@@ -76,7 +76,7 @@ class CallsCacheTest extends TestCase
 	}
 
 
-	public function dataProvider_settings_length_invalid()
+	public static function dataProvider_settings_length_invalid()
 	{
 		return [
 			"String" => [ "INVALID PARAMETER" ],

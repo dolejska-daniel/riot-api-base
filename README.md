@@ -1,9 +1,10 @@
-# RiotAPI PHP7 wrapper base
-> Version v1.0.0
+# RiotAPI PHP8 wrapper base
+> Version v2.0.0
 
-[![Build Status](https://img.shields.io/travis/dolejska-daniel/riot-api-base/master)](https://travis-ci.org/dolejska-daniel/riot-api-base)
-[![Test Coverage](https://img.shields.io/codeclimate/coverage/dolejska-daniel/riot-api-base?logo=code-climate)](https://codeclimate.com/github/dolejska-daniel/riot-api-base/coverage)
+[![example workflow](https://github.com/dolejska-daniel/riot-api-base/actions/workflows/php.yaml/badge.svg)](https://github.com/dolejska-daniel/riot-api-base/actions)
+[![Code Coverage](https://codecov.io/gh/dolejska-daniel/riot-api-base/branch/master/graph/badge.svg?token=QSQ2SSRLP9)](https://codecov.io/gh/dolejska-daniel/riot-api-base)
 [![Packagist](https://img.shields.io/packagist/l/dolejska-daniel/riot-api-base)](https://packagist.org/packages/dolejska-daniel/riot-api-base)
+![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-base)
 [![Support Project](https://img.shields.io/badge/support_project-PayPal-blue)](https://www.paypal.me/dolejskad)
 
 
@@ -17,11 +18,11 @@ The implementation is being used by concrete game API implementations such as Le
 There sould be no need to download this library on its own, because it doesn't do much on its own.
 To download API for a Riot game, please refer to the repositories of API implementations below.
 
-| Library Description                                                               | Latest Version | Stable Version |
-| --------------------------------------------------------------------------------- | -------------- | -------------- |
-| [All APIs](https://github.com/dolejska-daniel/riot-api) (metapackage)             | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api) |
-| [League of Legends API](https://github.com/dolejska-daniel/riot-api-league)       | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-league?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-league) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-league)
+| Library Description                                                               | Latest Version                                                                                                            | Stable Version                                                                                                                                                                            |
+|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [All APIs](https://github.com/dolejska-daniel/riot-api) (metapackage)             | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api?include_prereleases)            | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api)                       |
+| [League of Legends API](https://github.com/dolejska-daniel/riot-api-league)       | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-league?include_prereleases)     | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-league) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-league)         |
 | [DataDragon API](https://github.com/dolejska-daniel/riot-api-datadragon)          | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-datadragon?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-datadragon) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-datadragon) |
-| [Teamfight Tactics API](https://github.com/dolejska-daniel/riot-api-tft)          | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-tft?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-tft) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-tft) |
-| [Legends of Runeterra API](https://github.com/dolejska-daniel/riot-api-runeterra) | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-runeterra?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-runeterra) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-runeterra) |
-| [Valorant API](https://github.com/dolejska-daniel/riot-api-valorant)              | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-valorant?include_prereleases) | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-valorant) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-valorant) |
+| [Teamfight Tactics API](https://github.com/dolejska-daniel/riot-api-tft)          | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-tft?include_prereleases)        | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-tft) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-tft)               |
+| [Legends of Runeterra API](https://github.com/dolejska-daniel/riot-api-runeterra) | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-runeterra?include_prereleases)  | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-runeterra) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-runeterra)   |
+| [Valorant API](https://github.com/dolejska-daniel/riot-api-valorant)              | ![GitHub Latest Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-valorant?include_prereleases)   | ![GitHub Release](https://img.shields.io/github/v/release/dolejska-daniel/riot-api-valorant) ![PHP Version](https://img.shields.io/packagist/php-v/dolejska-daniel/riot-api-valorant)     |

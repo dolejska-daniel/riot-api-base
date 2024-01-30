@@ -27,8 +27,7 @@ namespace RiotAPI\Base\Definitions;
  */
 class RateLimitStorage
 {
-	/** @var array $limits */
-	protected $limits = [];
+	protected array $limits = [];
 
 	/**
 	 *   RateLimitStorage constructor.
@@ -52,7 +51,7 @@ class RateLimitStorage
 		return true;
 	}
 
-	protected static function parseLimitHeaders( $header )
+	protected static function parseLimitHeaders( $header ): array
 	{
 		$limits = [];
 		foreach (explode(',', $header) as $limitInterval)
@@ -118,7 +117,7 @@ class RateLimitStorage
 	 *
 	 * @return mixed
 	 */
-	public function getAppLimits(string $api_key, string $region)
+	public function getAppLimits(string $api_key, string $region): mixed
 	{
 		return @$this->limits[$region][$api_key]['app'];
 	}
@@ -132,7 +131,7 @@ class RateLimitStorage
 	 *
 	 * @return mixed
 	 */
-	public function getMethodLimits( string $api_key, string $region, string $endpoint)
+	public function getMethodLimits( string $api_key, string $region, string $endpoint): mixed
 	{
 		return @$this->limits[$region][$api_key]['method'][$endpoint];
 	}
@@ -239,8 +238,8 @@ class RateLimitStorage
 	 * @param string $api_key
 	 * @param string $region
 	 * @param string $endpoint
-	 * @param string $app_header
-	 * @param string $method_header
+	 * @param string|null $app_header
+	 * @param string|null $method_header
 	 */
 	public function registerCall( string $api_key, string $region, string $endpoint, string $app_header = null, string $method_header = null )
 	{

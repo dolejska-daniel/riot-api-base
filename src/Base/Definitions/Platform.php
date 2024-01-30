@@ -52,8 +52,10 @@ class Platform implements IPlatform
 	const SEA = 'sea';
 
 	public static $list = array(
+		IRegion::EUROPE         => self::EUROPE,
+		IRegion::AMERICAS       => self::AMERICAS,
+		IRegion::ASIA           => self::ASIA,
 		Region::NORTH_AMERICA   => self::NORTH_AMERICA,
-		Region::EUROPE          => self::EUROPE,
 		Region::EUROPE_WEST     => self::EUROPE_WEST,
 		Region::EUROPE_EAST     => self::EUROPE_EAST,
 		Region::LAMERICA_SOUTH  => self::LAMERICA_SOUTH,
@@ -65,9 +67,6 @@ class Platform implements IPlatform
 		Region::KOREA           => self::KOREA,
 		Region::JAPAN           => self::JAPAN,
 		Region::TAIWAN           => self::TAIWAN,
-		Region::AMERICAS        => self::AMERICAS,
-		Region::ASIA            => self::ASIA,
-		Region::SEA            => self::SEA,
 	);
 
 	public static $continentalRegions = [
@@ -87,6 +86,9 @@ class Platform implements IPlatform
 		return $this::$list;
 	}
 
+	/**
+	 * @throws GeneralException
+	 */
 	public function getPlatformNameOfRegion($region): string
 	{
 		if (!isset($this::$list[$region]))
@@ -95,6 +97,9 @@ class Platform implements IPlatform
 		return $this::$list[$region];
 	}
 
+	/**
+	 * @throws GeneralException
+	 */
 	public function getCorrespondingContinentRegion($region): string
 	{
 		switch ($this->getPlatformNameOfRegion($region))
@@ -103,18 +108,18 @@ class Platform implements IPlatform
 			case Platform::EUROPE_EAST:
 			case Platform::TURKEY:
 			case Platform::RUSSIA:
-				return Region::EUROPE;
+				return IRegion::EUROPE;
 
 			case Platform::NORTH_AMERICA:
 			case Platform::LAMERICA_NORTH:
 			case Platform::LAMERICA_SOUTH:
 			case Platform::BRASIL:
 			case Platform::OCEANIA:
-				return Region::AMERICAS;
+				return IRegion::AMERICAS;
 
 			case Platform::KOREA:
 			case Platform::JAPAN:
-				return Region::ASIA;
+				return IRegion::ASIA;
 
 			case Platform::TAIWAN:
 				return Region::SEA;				

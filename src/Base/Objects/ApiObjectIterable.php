@@ -20,6 +20,7 @@
 namespace RiotAPI\Base\Objects;
 
 use Iterator;
+use JetBrains\PhpStorm\Pure;
 
 /**
  *   Class ApiObjectIterable
@@ -34,27 +35,27 @@ abstract class ApiObjectIterable extends ApiObject implements Iterator
 	 */
 	protected $_iterable = [];
 
-	public function rewind()
+	public function rewind(): void
 	{
 		reset($this->_iterable);
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		return current($this->_iterable);
 	}
 
-	public function key()
+	public function key(): string|int|null
 	{
 		return key($this->_iterable);
 	}
 
-	public function next()
+	public function next(): void
 	{
-		return next($this->_iterable);
+		next($this->_iterable);
 	}
 
-	public function valid(): bool
+	#[Pure] public function valid(): bool
 	{
 		return ($this->key() !== null && $this->key() !== false);
 	}
