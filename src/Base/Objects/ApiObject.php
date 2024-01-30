@@ -164,7 +164,7 @@ abstract class ApiObject implements IApiObject
 
 		preg_match('/@var\s+(\w+)(\[])?/', $property->getDocComment(), $matches);
 
-		$o->class = $matches[1];
+		$o->class = isset($matches[1]) ? $matches[1] : null;
 		$o->isArray = isset($matches[2]);
 
         if ($o->class == null)
