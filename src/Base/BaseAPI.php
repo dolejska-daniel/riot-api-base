@@ -193,7 +193,7 @@ abstract class BaseAPI
 	protected array $query_data = [];
 	protected string|null $post_data = null;
 	protected mixed $result_data = null;
-	protected string $result_data_raw;
+	protected string|null $result_data_raw;
 	protected array $result_headers;
 	protected int $result_code;
 	protected array $beforeCall = [];
